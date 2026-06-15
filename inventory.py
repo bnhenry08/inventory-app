@@ -31,7 +31,7 @@ if not st.session_state.auth:
 def load_data():
     if os.path.exists(FILE):
         return pd.read_csv(FILE)
-    return pd.DataFrame(columns=["Item", "Category", "Quantity", "Location"])
+    return pd.DataFrame(columns=["Item", "Category", "Quantity", "Freezer Name", "Rack Number", "Box Number"])
 
 def save_data(df):
     df.to_csv(FILE, index=False)
