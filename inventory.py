@@ -49,7 +49,7 @@ with st.form("add_item"):
     item = st.text_input("Item Name")
     category = st.text_input("Category")
     quantity = st.number_input("Quantity", min_value=0, step=1)
-    location = st.text_input("Location")
+    freezer_name = st.text_input("Freezer Name")
 
     submitted = st.form_submit_button("Add")
 
