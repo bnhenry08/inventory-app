@@ -50,11 +50,13 @@ with st.form("add_item"):
     category = st.text_input("Category")
     quantity = st.number_input("Quantity", min_value=0, step=1)
     freezer_name = st.text_input("Freezer Name")
+    rack_number = st.text_input("Rack Number")
+    box_number = st.text_input("Box Number")
 
     submitted = st.form_submit_button("Add")
 
     if submitted and item:
-        new_row = pd.DataFrame([[item, category, quantity, location]],
+        new_row = pd.DataFrame([[item, category, quantity, freezer_name, rack_number, box_number]],
                                columns=inventory.columns)
         inventory = pd.concat([inventory, new_row], ignore_index=True)
         save_data(inventory)
