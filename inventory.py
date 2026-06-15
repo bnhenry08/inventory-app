@@ -17,7 +17,7 @@ if not st.session_state.auth:
 
     if st.button("Login"):
         # You can later move this to st.secrets
-        if password == st.secrets[pdrc144150]:
+        if password == st.secrets["pdrc144150"]:
             st.session_state.auth = True
             st.rerun()
         else:
