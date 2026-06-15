@@ -87,7 +87,7 @@ with st.form("add_item"):
         st.rerun()
 
 # -----------------------------
-# 🔍 SEARCH (GENERAL)
+# 🔍 SEARCH
 # -----------------------------
 st.header("Search")
 
@@ -106,46 +106,51 @@ else:
 st.dataframe(filtered, use_container_width=True)
 
 # -----------------------------
-# 🗑 DELETE (SEARCH → SELECT ROW → DELETE ONE)
+# ✏️ UPDATE QUANTITY (NEW LOGIC)
 # -----------------------------
-st.header("Delete Item (select one row)")
+st.header("Update Quantity")
 
-delete_search = st.text_input("Search item to delete")
+update_search = st.text_input("Search item to update quantity")
 
-if delete_search:
+if update_search:
     matches = inventory[
-        inventory["Item"].str.contains(delete_search, case=False, na=False)
+        inventory["Item"].str.contains(update_search, case=False, na=False)
     ].reset_index()
 
     if len(matches) == 0:
         st.warning("No matching items found.")
     else:
-        st.write("Select the exact row to delete:")
+        st.write("Select item to update:")
 
-        # build label for dropdown
         options = {
-            i: f"{row['Item']} | Freezer:{row['Freezer Name']} | Rack:{row['Rack Number']} | Box:{row['Box Number']}"
+            i: f"{row['Item']} | Freezer:{row['Freezer Name']} | Rack:{row['Rack Number']} | Box:{row['Box Number']} | Current Qty:{row['Quantity']}"
             for i, row in matches.iterrows()
         }
 
         selected = st.selectbox(
-            "Matching rows",
+            "Matching items",
             list(options.keys()),
             format_func=lambda x: options[x]
         )
 
-        if st.button("Delete selected row"):
-            # map back to original index
+        new_qty = st.number_input(
+            "New quantity",
+            min_value=0,
+            step=1,
+            value=int(matches.loc[selected, "Quantity"])
+        )
+
+        if st.button("Update quantity"):
             original_index = matches.loc[selected, "index"]
 
-            inventory = inventory.drop(original_index).reset_index(drop=True)
-            save_data(inventory)
+            inventory.loc[original_index, "Quantity"] = new_qty
 
-            st.success("Row deleted")
+            save_data(inventory)
+            st.success("Quantity updated")
             st.rerun()
 
 # -----------------------------
-# ⬇ DOWNLOAD
+# ⬇ DOWNLOAD CSV
 # -----------------------------
 csv = inventory.to_csv(index=False)
 
