@@ -4,15 +4,45 @@ import os
 
 FILE = "inventory.csv"
 
-# Load existing data
-if os.path.exists(FILE):
-    inventory = pd.read_csv(FILE)
-else:
-    inventory = pd.DataFrame(columns=["Item", "Category", "Quantity", "Location"])
+# -----------------------------
+# 🔐 SIMPLE PASSWORD LOGIN (OPTIONAL)
+# -----------------------------
+if "auth" not in st.session_state:
+    st.session_state.auth = False
+
+if not st.session_state.auth:
+    st.title("📦 Inventory Login")
+
+    password = st.text_input("Enter password", type="password")
+
+    if st.button("Login"):
+        # You can later move this to st.secrets
+        if password == st.secrets[pdrc144150]:
+            st.session_state.auth = True
+            st.rerun()
+        else:
+            st.error("Wrong password")
+
+    st.stop()
+
+# -----------------------------
+# 📂 LOAD DATA SAFELY
+# -----------------------------
+def load_data():
+    if os.path.exists(FILE):
+        return pd.read_csv(FILE)
+    return pd.DataFrame(columns=["Item", "Category", "Quantity", "Location"])
+
+def save_data(df):
+    df.to_csv(FILE, index=False)
+
+inventory = load_data()
 
 st.title("📦 Inventory Manager")
 
-# Add item
+# -----------------------------
+# ➕ ADD ITEM
+# -----------------------------
 st.header("Add Item")
 
 with st.form("add_item"):
@@ -23,37 +53,58 @@ with st.form("add_item"):
 
     submitted = st.form_submit_button("Add")
 
-    if submitted:
+    if submitted and item:
         new_row = pd.DataFrame([[item, category, quantity, location]],
-                               columns=["Item", "Category", "Quantity", "Location"])
+                               columns=inventory.columns)
         inventory = pd.concat([inventory, new_row], ignore_index=True)
-        inventory.to_csv(FILE, index=False)
+        save_data(inventory)
         st.success(f"Added {item}")
+        st.rerun()
 
-# Search
+# -----------------------------
+# 🔍 SEARCH
+# -----------------------------
 st.header("Search")
 search = st.text_input("Search items")
 
-if search:
-    filtered = inventory[inventory["Item"].str.contains(search, case=False, na=False)]
-else:
-    filtered = inventory
+filtered = inventory.copy()
 
-# Show table
+if search:
+    filtered = filtered[
+        filtered["Item"].str.contains(search, case=False, na=False)
+    ]
+
 st.dataframe(filtered, use_container_width=True)
 
-# Delete
+# -----------------------------
+# 🗑 DELETE (FIXED SAFE INDEXING)
+# -----------------------------
 st.header("Delete Item")
 
 if len(inventory) > 0:
-    index = st.selectbox("Select row to delete", inventory.index)
+    # show display index safely
+    inventory_reset = inventory.reset_index(drop=True)
+
+    delete_index = st.selectbox(
+        "Select row to delete",
+        inventory_reset.index,
+        format_func=lambda x: f"{inventory_reset.loc[x, 'Item']} | {inventory_reset.loc[x, 'Location']}"
+    )
 
     if st.button("Delete"):
-        inventory = inventory.drop(index).reset_index(drop=True)
-        inventory.to_csv(FILE, index=False)
+        inventory = inventory_reset.drop(delete_index)
+        save_data(inventory)
         st.success("Item deleted")
+        st.rerun()
 
-# Download
+# -----------------------------
+# ⬇ DOWNLOAD
+# -----------------------------
 csv = inventory.to_csv(index=False)
 
-st.download_button("Download CSV", csv, "inventory.csv", "text/csv")
+st.download_button(
+    "Download CSV",
+    csv,
+    "inventory.csv",
+    "text/csv"
+)
