@@ -5,11 +5,10 @@ import os
 FILE = "inventory.csv"
 
 # -----------------------------
-# 📌 FIXED COLUMN SCHEMA (GLOBAL)
+# 📌 COLUMN SCHEMA (UPDATED)
 # -----------------------------
 COLUMNS = [
     "Item",
-    "Category",
     "Quantity",
     "Freezer Name",
     "Rack Number",
@@ -37,13 +36,13 @@ if not st.session_state.auth:
     st.stop()
 
 # -----------------------------
-# 📂 LOAD / SAVE SAFE DATA
+# 📂 LOAD / SAVE DATA
 # -----------------------------
 def load_data():
     if os.path.exists(FILE):
         df = pd.read_csv(FILE)
 
-        # ensure all required columns exist
+        # ensure schema consistency
         for col in COLUMNS:
             if col not in df.columns:
                 df[col] = ""
@@ -66,7 +65,6 @@ st.header("Add Item")
 
 with st.form("add_item"):
     item = st.text_input("Item Name")
-    category = st.text_input("Category")
     quantity = st.number_input("Quantity", min_value=0, step=1)
     freezer_name = st.text_input("Freezer Name")
     rack_number = st.text_input("Rack Number")
@@ -77,7 +75,6 @@ with st.form("add_item"):
     if submitted and item:
         new_row = pd.DataFrame([[
             item,
-            category,
             quantity,
             freezer_name,
             rack_number,
@@ -110,29 +107,33 @@ else:
 st.dataframe(filtered, use_container_width=True)
 
 # -----------------------------
-# 🗑 DELETE ITEM
+# 🗑 DELETE BY SEARCH TERM
 # -----------------------------
-st.header("Delete Item")
+st.header("Delete Item (by search)")
 
-if len(inventory) > 0:
-    inventory_reset = inventory.reset_index(drop=True)
+delete_search = st.text_input("Enter item name to delete")
 
-    delete_index = st.selectbox(
-        "Select row to delete",
-        inventory_reset.index,
-        format_func=lambda x: (
-            f"{inventory_reset.loc[x, 'Item']} | "
-            f"{inventory_reset.loc[x, 'Freezer Name']} | "
-            f"Rack {inventory_reset.loc[x, 'Rack Number']} | "
-            f"Box {inventory_reset.loc[x, 'Box Number']}"
-        )
-    )
+if delete_search:
+    matches = inventory[
+        inventory["Item"].str.contains(delete_search, case=False, na=False)
+    ]
 
-    if st.button("Delete"):
-        inventory = inventory_reset.drop(delete_index)
-        save_data(inventory)
-        st.success("Item deleted")
-        st.rerun()
+    if len(matches) == 0:
+        st.warning("No matching items found.")
+    else:
+        st.write("Matching items:")
+        st.dataframe(matches, use_container_width=True)
+
+        confirm = st.button("Delete ALL matches")
+
+        if confirm:
+            inventory = inventory[
+                ~inventory["Item"].str.contains(delete_search, case=False, na=False)
+            ]
+
+            save_data(inventory)
+            st.success(f"Deleted items matching: {delete_search}")
+            st.rerun()
 
 # -----------------------------
 # ⬇ DOWNLOAD CSV
