@@ -5,6 +5,18 @@ import os
 FILE = "inventory.csv"
 
 # -----------------------------
+# 📌 FIXED COLUMN SCHEMA (GLOBAL)
+# -----------------------------
+COLUMNS = [
+    "Item",
+    "Category",
+    "Quantity",
+    "Freezer Name",
+    "Rack Number",
+    "Box Number"
+]
+
+# -----------------------------
 # 🔐 LOGIN
 # -----------------------------
 if "auth" not in st.session_state:
@@ -25,20 +37,20 @@ if not st.session_state.auth:
     st.stop()
 
 # -----------------------------
-# 📂 LOAD / SAVE DATA
+# 📂 LOAD / SAVE SAFE DATA
 # -----------------------------
 def load_data():
     if os.path.exists(FILE):
-        return pd.read_csv(FILE)
+        df = pd.read_csv(FILE)
 
-    return pd.DataFrame(columns=[
-        "Item",
-        "Category",
-        "Quantity",
-        "Freezer Name",
-        "Rack Number",
-        "Box Number"
-    ])
+        # ensure all required columns exist
+        for col in COLUMNS:
+            if col not in df.columns:
+                df[col] = ""
+
+        return df[COLUMNS]
+
+    return pd.DataFrame(columns=COLUMNS)
 
 def save_data(df):
     df.to_csv(FILE, index=False)
@@ -70,7 +82,7 @@ with st.form("add_item"):
             freezer_name,
             rack_number,
             box_number
-        ]], columns=inventory.columns)
+        ]], columns=COLUMNS)
 
         inventory = pd.concat([inventory, new_row], ignore_index=True)
         save_data(inventory)
@@ -85,8 +97,6 @@ st.header("Search")
 
 search = st.text_input("Search items")
 
-filtered = inventory.copy()
-
 if search:
     filtered = inventory[
         inventory.astype(str).apply(
@@ -94,6 +104,8 @@ if search:
             axis=1
         )
     ]
+else:
+    filtered = inventory
 
 st.dataframe(filtered, use_container_width=True)
 
@@ -123,7 +135,7 @@ if len(inventory) > 0:
         st.rerun()
 
 # -----------------------------
-# ⬇ DOWNLOAD
+# ⬇ DOWNLOAD CSV
 # -----------------------------
 csv = inventory.to_csv(index=False)
 
