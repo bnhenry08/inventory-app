@@ -5,7 +5,7 @@ import os
 FILE = "inventory.csv"
 
 # -----------------------------
-# 📌 COLUMN SCHEMA (UPDATED)
+# 📌 COLUMN SCHEMA
 # -----------------------------
 COLUMNS = [
     "Item",
@@ -36,13 +36,12 @@ if not st.session_state.auth:
     st.stop()
 
 # -----------------------------
-# 📂 LOAD / SAVE DATA
+# 📂 LOAD / SAVE
 # -----------------------------
 def load_data():
     if os.path.exists(FILE):
         df = pd.read_csv(FILE)
 
-        # ensure schema consistency
         for col in COLUMNS:
             if col not in df.columns:
                 df[col] = ""
@@ -88,7 +87,7 @@ with st.form("add_item"):
         st.rerun()
 
 # -----------------------------
-# 🔍 SEARCH
+# 🔍 SEARCH (GENERAL)
 # -----------------------------
 st.header("Search")
 
@@ -107,36 +106,46 @@ else:
 st.dataframe(filtered, use_container_width=True)
 
 # -----------------------------
-# 🗑 DELETE BY SEARCH TERM
+# 🗑 DELETE (SEARCH → SELECT ROW → DELETE ONE)
 # -----------------------------
-st.header("Delete Item (by search)")
+st.header("Delete Item (select one row)")
 
-delete_search = st.text_input("Enter item name to delete")
+delete_search = st.text_input("Search item to delete")
 
 if delete_search:
     matches = inventory[
         inventory["Item"].str.contains(delete_search, case=False, na=False)
-    ]
+    ].reset_index()
 
     if len(matches) == 0:
         st.warning("No matching items found.")
     else:
-        st.write("Matching items:")
-        st.dataframe(matches, use_container_width=True)
+        st.write("Select the exact row to delete:")
 
-        confirm = st.button("Delete ALL matches")
+        # build label for dropdown
+        options = {
+            i: f"{row['Item']} | Freezer:{row['Freezer Name']} | Rack:{row['Rack Number']} | Box:{row['Box Number']}"
+            for i, row in matches.iterrows()
+        }
 
-        if confirm:
-            inventory = inventory[
-                ~inventory["Item"].str.contains(delete_search, case=False, na=False)
-            ]
+        selected = st.selectbox(
+            "Matching rows",
+            list(options.keys()),
+            format_func=lambda x: options[x]
+        )
 
+        if st.button("Delete selected row"):
+            # map back to original index
+            original_index = matches.loc[selected, "index"]
+
+            inventory = inventory.drop(original_index).reset_index(drop=True)
             save_data(inventory)
-            st.success(f"Deleted items matching: {delete_search}")
+
+            st.success("Row deleted")
             st.rerun()
 
 # -----------------------------
-# ⬇ DOWNLOAD CSV
+# ⬇ DOWNLOAD
 # -----------------------------
 csv = inventory.to_csv(index=False)
 
