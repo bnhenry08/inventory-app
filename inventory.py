@@ -5,7 +5,7 @@ import os
 FILE = "inventory.csv"
 
 # -----------------------------
-# 📌 COLUMN SCHEMA
+# COLUMN SCHEMA
 # -----------------------------
 COLUMNS = [
     "Item",
@@ -16,13 +16,13 @@ COLUMNS = [
 ]
 
 # -----------------------------
-# 🔐 LOGIN
+# LOGIN
 # -----------------------------
 if "auth" not in st.session_state:
     st.session_state.auth = False
 
 if not st.session_state.auth:
-    st.title("📦 Inventory Login")
+    st.title("Inventory Login")
 
     password = st.text_input("Enter password", type="password")
 
@@ -36,7 +36,7 @@ if not st.session_state.auth:
     st.stop()
 
 # -----------------------------
-# 📂 LOAD / SAVE
+# LOAD / SAVE
 # -----------------------------
 def load_data():
     if os.path.exists(FILE):
@@ -55,10 +55,10 @@ def save_data(df):
 
 inventory = load_data()
 
-st.title("📦 Inventory Manager")
+st.title("Inventory Manager")
 
 # -----------------------------
-# ➕ ADD ITEM
+# ADD ITEM
 # -----------------------------
 st.header("Add Item")
 
@@ -87,7 +87,7 @@ with st.form("add_item"):
         st.rerun()
 
 # -----------------------------
-# 🔍 SEARCH
+# SEARCH
 # -----------------------------
 st.header("Search")
 
@@ -106,7 +106,7 @@ else:
 st.dataframe(filtered, use_container_width=True)
 
 # -----------------------------
-# ✏️ UPDATE QUANTITY (NEW LOGIC)
+# UPDATE QUANTITY (NEW LOGIC)
 # -----------------------------
 st.header("Update Quantity")
 
@@ -150,7 +150,7 @@ if update_search:
             st.rerun()
 
 # -----------------------------
-# ⬇ DOWNLOAD CSV
+# DOWNLOAD CSV
 # -----------------------------
 csv = inventory.to_csv(index=False)
 
