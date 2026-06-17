@@ -1,44 +1,9 @@
 import streamlit as st
 import pandas as pd
-import os
-from git import Repo
+import requests
+import base64
+from io import StringIO
 
-# -----------------------------
-# GITHUB REPOSITORY PATH
-# -----------------------------
-REPO_PATH = os.path.dirname(os.path.abspath(__file__))
-
-# inventory.csv will live inside your GitHub repo
-FILE = os.path.join(REPO_PATH, "inventory.csv")
-
-
-# -----------------------------
-# GITHUB SYNC
-# -----------------------------
-def push_to_github(commit_message="Inventory updated"):
-    try:
-        repo = Repo(REPO_PATH)
-
-        # Add inventory file
-        repo.git.add("inventory.csv")
-
-        # Commit only if there are changes
-        if repo.is_dirty(untracked_files=True):
-            repo.index.commit(commit_message)
-
-            origin = repo.remote(name="origin")
-            origin.push()
-
-        return True
-
-    except Exception as e:
-        st.error(f"GitHub sync failed: {e}")
-        return False
-
-
-# -----------------------------
-# COLUMN SCHEMA
-# -----------------------------
 COLUMNS = [
     "Item",
     "Quantity",
@@ -47,16 +12,73 @@ COLUMNS = [
     "Box Number"
 ]
 
+def github_headers():
+    return {
+        "Authorization": f"token {st.secrets['github_token']}",
+        "Accept": "application/vnd.github+json"
+    }
 
-# -----------------------------
-# LOGIN
-# -----------------------------
+def github_url():
+    return (
+        f"https://api.github.com/repos/"
+        f"{st.secrets['github_repo']}/contents/"
+        f"{st.secrets['github_file']}"
+    )
+
+def load_from_github():
+    response = requests.get(
+        github_url(),
+        headers=github_headers()
+    )
+
+    if response.status_code == 404:
+        return pd.DataFrame(columns=COLUMNS), None
+
+    data = response.json()
+
+    csv_content = base64.b64decode(
+        data["content"]
+    ).decode("utf-8")
+
+    df = pd.read_csv(StringIO(csv_content))
+
+    for col in COLUMNS:
+        if col not in df.columns:
+            df[col] = ""
+
+    return df[COLUMNS], data["sha"]
+
+def save_to_github(df, sha):
+    csv_content = df.to_csv(index=False)
+
+    encoded = base64.b64encode(
+        csv_content.encode()
+    ).decode()
+
+    payload = {
+        "message": f"Inventory update {pd.Timestamp.now()}",
+        "content": encoded
+    }
+
+    if sha:
+        payload["sha"] = sha
+
+    response = requests.put(
+        github_url(),
+        headers=github_headers(),
+        json=payload
+    )
+
+    if response.status_code in [200, 201]:
+        return response.json()["content"]["sha"]
+
+    st.error(f"GitHub update failed: {response.text}")
+    return sha
+
 if "auth" not in st.session_state:
     st.session_state.auth = False
 
-
 if not st.session_state.auth:
-
     st.title("Inventory Login")
 
     password = st.text_input(
@@ -65,88 +87,34 @@ if not st.session_state.auth:
     )
 
     if st.button("Login"):
-
         if password == st.secrets["password"]:
             st.session_state.auth = True
             st.rerun()
-
         else:
             st.error("Wrong password")
 
     st.stop()
 
-
-
-# -----------------------------
-# LOAD / SAVE
-# -----------------------------
-def load_data():
-
-    if os.path.exists(FILE):
-
-        df = pd.read_csv(FILE)
-
-        for col in COLUMNS:
-            if col not in df.columns:
-                df[col] = ""
-
-        return df[COLUMNS]
-
-
-    # first time running
-    return pd.DataFrame(columns=COLUMNS)
-
-
-
-def save_data(df):
-
-    # Save inside repo
-    df.to_csv(FILE, index=False)
-
-
-    # Push to GitHub
-    push_to_github(
-        f"Inventory update {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}"
-    )
-
-
-
-inventory = load_data()
-
+inventory, github_sha = load_from_github()
 
 st.title("Inventory Manager")
 
-
-
-# -----------------------------
-# ADD ITEM
-# -----------------------------
 st.header("Add Item")
 
-
 with st.form("add_item"):
-
     item = st.text_input("Item Name")
-
     quantity = st.number_input(
         "Quantity",
         min_value=0,
         step=1
     )
-
     freezer_name = st.text_input("Freezer Name")
-
     rack_number = st.text_input("Rack Number")
-
     box_number = st.text_input("Box Number")
-
 
     submitted = st.form_submit_button("Add")
 
-
     if submitted and item:
-
-
         new_row = pd.DataFrame(
             [[
                 item,
@@ -158,40 +126,29 @@ with st.form("add_item"):
             columns=COLUMNS
         )
 
-
         inventory = pd.concat(
             [inventory, new_row],
             ignore_index=True
         )
 
-
-        save_data(inventory)
-
+        github_sha = save_to_github(
+            inventory,
+            github_sha
+        )
 
         st.success(
-            f"Added {item} and saved to GitHub"
+            f"{item} added and saved to GitHub"
         )
 
         st.rerun()
 
-
-
-# -----------------------------
-# SEARCH
-# -----------------------------
 st.header("Search")
 
-
-search = st.text_input(
-    "Search items"
-)
-
+search = st.text_input("Search items")
 
 if search:
-
     filtered = inventory[
-        inventory.astype(str)
-        .apply(
+        inventory.astype(str).apply(
             lambda row:
             row.str.contains(
                 search,
@@ -201,75 +158,49 @@ if search:
             axis=1
         )
     ]
-
 else:
-
     filtered = inventory
-
-
 
 st.dataframe(
     filtered,
     use_container_width=True
 )
 
-
-
-# -----------------------------
-# UPDATE QUANTITY
-# -----------------------------
 st.header("Update Quantity")
-
 
 update_search = st.text_input(
     "Search item to update quantity"
 )
 
-
 if update_search:
-
     matches = inventory[
-        inventory["Item"]
-        .str.contains(
+        inventory["Item"].str.contains(
             update_search,
             case=False,
             na=False
         )
     ].reset_index()
 
-
-
     if len(matches) == 0:
-
-        st.warning(
-            "No matching items found."
-        )
-
-
+        st.warning("No matching items found.")
     else:
-
-
         options = {
-
             i:
-            f"{row['Item']} | "
-            f"Freezer:{row['Freezer Name']} | "
-            f"Rack:{row['Rack Number']} | "
-            f"Box:{row['Box Number']} | "
-            f"Qty:{row['Quantity']}"
-
+            (
+                f"{row['Item']} | "
+                f"Freezer:{row['Freezer Name']} | "
+                f"Rack:{row['Rack Number']} | "
+                f"Box:{row['Box Number']} | "
+                f"Qty:{row['Quantity']}"
+            )
             for i, row in matches.iterrows()
         }
-
-
 
         selected = st.selectbox(
             "Matching items",
             list(options.keys()),
             format_func=lambda x: options[x]
         )
-
-
 
         new_qty = st.number_input(
             "New quantity",
@@ -278,27 +209,15 @@ if update_search:
             value=int(matches.loc[selected, "Quantity"])
         )
 
-
-
         if st.button("Update quantity"):
+            index = matches.loc[selected, "index"]
 
+            inventory.loc[index, "Quantity"] = new_qty
 
-            original_index = matches.loc[
-                selected,
-                "index"
-            ]
-
-
-            inventory.loc[
-                original_index,
-                "Quantity"
-            ] = new_qty
-
-
-
-            save_data(inventory)
-
-
+            github_sha = save_to_github(
+                inventory,
+                github_sha
+            )
 
             st.success(
                 "Quantity updated and saved to GitHub"
@@ -306,13 +225,7 @@ if update_search:
 
             st.rerun()
 
-
-
-# -----------------------------
-# DOWNLOAD CSV
-# -----------------------------
 csv = inventory.to_csv(index=False)
-
 
 st.download_button(
     "Download CSV",
