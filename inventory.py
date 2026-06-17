@@ -1,8 +1,34 @@
 import streamlit as st
 import pandas as pd
 import os
+from git import Repo
 
 FILE = "inventory.csv"
+
+# -----------------------------
+# GITHUB SYNC
+# -----------------------------
+REPO_PATH = os.path.dirname(os.path.abspath(__file__))
+
+def push_to_github(commit_message="Inventory updated"):
+    try:
+        repo = Repo(REPO_PATH)
+
+        repo.git.add(FILE)
+
+        # Only commit if there are changes
+        if repo.is_dirty(untracked_files=True):
+            repo.index.commit(commit_message)
+
+            origin = repo.remote(name="origin")
+            origin.push()
+
+        return True
+
+    except Exception as e:
+        st.error(f"GitHub sync failed: {e}")
+        return False
+
 
 # -----------------------------
 # COLUMN SCHEMA
@@ -50,8 +76,14 @@ def load_data():
 
     return pd.DataFrame(columns=COLUMNS)
 
+
 def save_data(df):
     df.to_csv(FILE, index=False)
+
+    push_to_github(
+        f"Inventory update {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}"
+    )
+
 
 inventory = load_data()
 
@@ -81,9 +113,10 @@ with st.form("add_item"):
         ]], columns=COLUMNS)
 
         inventory = pd.concat([inventory, new_row], ignore_index=True)
+
         save_data(inventory)
 
-        st.success(f"Added {item}")
+        st.success(f"Added {item} and synced to GitHub")
         st.rerun()
 
 # -----------------------------
@@ -106,7 +139,7 @@ else:
 st.dataframe(filtered, use_container_width=True)
 
 # -----------------------------
-# UPDATE QUANTITY (NEW LOGIC)
+# UPDATE QUANTITY
 # -----------------------------
 st.header("Update Quantity")
 
@@ -123,7 +156,13 @@ if update_search:
         st.write("Select item to update:")
 
         options = {
-            i: f"{row['Item']} | Freezer:{row['Freezer Name']} | Rack:{row['Rack Number']} | Box:{row['Box Number']} | Current Qty:{row['Quantity']}"
+            i: (
+                f"{row['Item']} | "
+                f"Freezer:{row['Freezer Name']} | "
+                f"Rack:{row['Rack Number']} | "
+                f"Box:{row['Box Number']} | "
+                f"Current Qty:{row['Quantity']}"
+            )
             for i, row in matches.iterrows()
         }
 
@@ -133,11 +172,13 @@ if update_search:
             format_func=lambda x: options[x]
         )
 
+        current_qty = int(matches.loc[selected, "Quantity"])
+
         new_qty = st.number_input(
             "New quantity",
             min_value=0,
             step=1,
-            value=int(matches.loc[selected, "Quantity"])
+            value=current_qty
         )
 
         if st.button("Update quantity"):
@@ -146,7 +187,8 @@ if update_search:
             inventory.loc[original_index, "Quantity"] = new_qty
 
             save_data(inventory)
-            st.success("Quantity updated")
+
+            st.success("Quantity updated and synced to GitHub")
             st.rerun()
 
 # -----------------------------
