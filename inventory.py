@@ -162,8 +162,10 @@ with st.form("add_item"):
         step=1
     )
 
-    freezer_name = st.text_input(
-        "Freezer Name"
+    freezer_name = st.radio(
+        "Freezer Name",
+        ["A", "B", "C", "D", "E"],
+        horizontal=True
     )
 
     rack_number = st.text_input(
