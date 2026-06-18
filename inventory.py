@@ -63,11 +63,14 @@ def save_to_github(df, sha):
     if sha:
         payload["sha"] = sha
 
-    response = requests.put(
-        github_url(),
-        headers=github_headers(),
-        json=payload
-    )
+response = requests.put(
+    github_url(),
+    headers=github_headers(),
+    json=payload
+)
+
+st.write("Status:", response.status_code)
+st.write("Response:", response.text)
 
     if response.status_code in [200, 201]:
         return response.json()["content"]["sha"]
