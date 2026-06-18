@@ -49,16 +49,23 @@ def load_from_github():
         data["content"]
     ).decode("utf-8")
 
+
+    # Handle empty GitHub CSV
+    if not csv_content.strip():
+        return pd.DataFrame(columns=COLUMNS), data["sha"]
+
+
     df = pd.read_csv(
         StringIO(csv_content)
     )
+
 
     for col in COLUMNS:
         if col not in df.columns:
             df[col] = ""
 
-    return df[COLUMNS], data["sha"]
 
+    return df[COLUMNS], data["sha"]
 
 def save_to_github(df, sha):
 
