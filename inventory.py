@@ -410,27 +410,6 @@ if update_search:
             inventory.loc[index, "Freezer Name"] = new_freezer
             inventory.loc[index, "Rack Number"] = new_rack
             inventory.loc[index, "Box Number"] = new_box
-            inventory.loc[index, "Notes"] = new_notes
-
-    # Update Notes for the entire box
-    same_box = (
-        (inventory["Box Name"] == current["Box Name"]) &
-        (inventory["Freezer Name"] == current["Freezer Name"]) &
-        (inventory["Rack Number"] == current["Rack Number"]) &
-        (inventory["Box Number"] == current["Box Number"])
-    )
-
-
-    inventory.loc[
-        same_box,
-        "Notes"
-    ] = new_notes
-        if st.button("Save Updates"):
-
-            inventory.loc[index, "Quantity"] = new_quantity
-            inventory.loc[index, "Freezer Name"] = new_freezer
-            inventory.loc[index, "Rack Number"] = new_rack
-            inventory.loc[index, "Box Number"] = new_box
 
 
             github_sha = save_to_github(
