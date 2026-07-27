@@ -171,7 +171,7 @@ with st.form("add_item"):
     rack_number = st.radio(
         "Rack Number",
         ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
-        horizonal=True
+        horizontal=True
     )
 
     box_number = st.radio(
