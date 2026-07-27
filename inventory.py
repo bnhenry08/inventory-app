@@ -353,7 +353,85 @@ if update_search:
 
             st.rerun()
 
+# -----------------------------
+# DELETE ITEM
+# -----------------------------
 
+st.header("Delete Item")
+
+
+delete_search = st.text_input(
+    "Search item to delete"
+)
+
+
+if delete_search:
+
+    delete_matches = inventory[
+        inventory["Item"].str.contains(
+            delete_search,
+            case=False,
+            na=False
+        )
+    ].reset_index()
+
+
+    if len(delete_matches) == 0:
+
+        st.warning(
+            "No matching items found."
+        )
+
+
+    else:
+
+        delete_options = {
+            i:
+            (
+                f"{row['Item']} | "
+                f"Freezer:{row['Freezer Name']} | "
+                f"Rack:{row['Rack Number']} | "
+                f"Box:{row['Box Number']} | "
+                f"Qty:{row['Quantity']}"
+            )
+
+            for i, row in delete_matches.iterrows()
+        }
+
+
+        selected_delete = st.selectbox(
+            "Select item to delete",
+            list(delete_options.keys()),
+            format_func=lambda x: delete_options[x]
+        )
+
+
+        if st.button("Delete Item"):
+
+            index_to_delete = delete_matches.loc[
+                selected_delete,
+                "index"
+            ]
+
+
+            inventory = inventory.drop(
+                index_to_delete
+            ).reset_index(
+                drop=True
+            )
+
+
+            github_sha = save_to_github(
+                inventory,
+                github_sha
+            )
+
+
+            st.success(
+                "Item deleted and saved to GitHub"
+            )
+
+            st.rerun()
 
 # -----------------------------
 # DOWNLOAD
