@@ -356,11 +356,11 @@ if update_search:
 
         new_freezer = st.radio(
             "Freezer Name",
-            ["Pig 150", "B", "C", "D", "E"],
+            ["Pig 150", "Rabbit 150", "C", "D", "E"],
             index=[
                 "Pig 150", "Rabbit 150", "C", "D", "E"
             ].index(current["Freezer Name"])
-            if current["Freezer Name"] in ["Pig 150", "B", "C", "D", "E"]
+            if current["Freezer Name"] in ["Pig 150", "Rabbit 150", "C", "D", "E"]
             else 0,
             horizontal=True
         )
