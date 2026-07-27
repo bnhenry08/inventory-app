@@ -67,8 +67,10 @@ def load_from_github():
             df[col] = ""
 
     # Make sure these columns are stored as text
+    df["Freezer Name"] = df["Freezer Name"].astype(str)
     df["Rack Number"] = df["Rack Number"].astype(str)
     df["Box Number"] = df["Box Number"].astype(str)
+    df["Notes"] = df["Notes"].fillna("").astype(str)
 
     return df[COLUMNS], data["sha"]
 
@@ -409,16 +411,16 @@ if update_search:
 
 
             # Find all items in the same box
-            same_box = (
-                (inventory["Box Name"] == current["Box Name"]) &
-                (inventory["Freezer Name"] == current["Freezer Name"]) &
-                (inventory["Rack Number"] == current["Rack Number"]) &
-                (inventory["Box Number"] == current["Box Number"])
+                same_box = (
+                    (inventory["Box Name"] == current["Box Name"]) &
+                    (inventory["Freezer Name"] == new_freezer) &
+                    (inventory["Rack Number"] == str(new_rack)) &
+                    (inventory["Box Number"] == str(new_box))
             )
 
 
             # Update the note for the entire box
-            inventory.loc[same_box, "Notes"] = new_notes
+            inventory.loc[same_box, "Notes"] = str(new_notes)
 
 
             github_sha = save_to_github(
