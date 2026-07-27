@@ -413,10 +413,10 @@ if update_search:
 
            # Find all items in the same box
            same_box = (
-               (inventory["Box Name"] == current["Box Name"]) &
-               (inventory["Freezer Name"] == new_freezer) &
-               (inventory["Rack Number"] == str(new_rack)) &
-               (inventory["Box Number"] == str(new_box))
+              (inventory["Box Name"] == current["Box Name"]) &
+              (inventory["Freezer Name"] == new_freezer) &
+              (inventory["Rack Number"] == str(new_rack)) &
+              (inventory["Box Number"] == str(new_box))
            )
 
 
@@ -425,8 +425,8 @@ if update_search:
 
 
            github_sha = save_to_github(
-                inventory,
-                github_sha
+              inventory,
+              github_sha
             )
 
 
