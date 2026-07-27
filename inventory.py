@@ -152,7 +152,8 @@ st.header("Add Item")
 
 
 with st.form("add_item"):
-    item = st.text_input(
+
+    box_name = st.text_input(
         "Box Name"
     )
 
@@ -194,6 +195,7 @@ with st.form("add_item"):
 
         new_row = pd.DataFrame(
             [[
+                box_name,
                 item,
                 quantity,
                 freezer_name,
@@ -224,8 +226,6 @@ with st.form("add_item"):
         )
 
         st.rerun()
-
-
 
 # -----------------------------
 # SEARCH
