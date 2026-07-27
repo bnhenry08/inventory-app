@@ -164,18 +164,20 @@ with st.form("add_item"):
 
     freezer_name = st.radio(
         "Freezer Name",
-        ["A", "B", "C", "D", "E"],
+        ["Pig", "B", "C", "D", "E"],
         horizontal=True
     )
 
     rack_number = st.radio(
         "Rack Number",
-        ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]
+        ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
+        horizonal=True
     )
 
     box_number = st.radio(
         "Box Number",
-        ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]
+        ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
+        horizontal=True
     )
 
 
