@@ -5,6 +5,7 @@ import base64
 from io import StringIO
 
 COLUMNS = [
+    "Box Name"
     "Item",
     "Quantity",
     "Freezer Name",
@@ -151,6 +152,9 @@ st.header("Add Item")
 
 
 with st.form("add_item"):
+    item = st.text_input(
+        "Box Name"
+    )
 
     item = st.text_input(
         "Item Name"
