@@ -400,39 +400,38 @@ if update_search:
             else 0,
             horizontal=True
         )
-   if st.button("Save Updates"):
+        if st.button("Save Updates"):
 
-   inventory.loc[index, "Quantity"] = new_quantity
-   inventory.loc[index, "Freezer Name"] = new_freezer
-   inventory.loc[index, "Rack Number"] = str(new_rack)
-   inventory.loc[index, "Box Number"] = str(new_box)
-
-
-    # Find all items in the same box
-   same_box = (
-        (inventory["Box Name"] == current["Box Name"]) &
-        (inventory["Freezer Name"] == current["Freezer Name"]) &
-        (inventory["Rack Number"] == current["Rack Number"]) &
-        (inventory["Box Number"] == current["Box Number"])
-    )
+            inventory.loc[index, "Quantity"] = new_quantity
+            inventory.loc[index, "Freezer Name"] = new_freezer
+            inventory.loc[index, "Rack Number"] = str(new_rack)
+            inventory.loc[index, "Box Number"] = str(new_box)
 
 
-    # Update the note for the entire box
-    inventory.loc[same_box, "Notes"] = new_notes
+            # Find all items in the same box
+            same_box = (
+                (inventory["Box Name"] == current["Box Name"]) &
+                (inventory["Freezer Name"] == current["Freezer Name"]) &
+                (inventory["Rack Number"] == current["Rack Number"]) &
+                (inventory["Box Number"] == current["Box Number"])
+            )
 
 
-    github_sha = save_to_github(
-        inventory,
-        github_sha
-    )
+            # Update the note for the entire box
+            inventory.loc[same_box, "Notes"] = new_notes
 
 
-    st.success(
-        "Item information updated and saved to GitHub"
-    )
+            github_sha = save_to_github(
+                inventory,
+                github_sha
+            )
 
-    st.rerun()
 
+            st.success(
+                "Item information updated and saved to GitHub"
+            )
+
+            st.rerun()
 # -----------------------------
 # DOWNLOAD
 # -----------------------------
