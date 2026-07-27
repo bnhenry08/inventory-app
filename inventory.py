@@ -10,7 +10,8 @@ COLUMNS = [
     "Quantity",
     "Freezer Name",
     "Rack Number",
-    "Box Number"
+    "Box Number", 
+    "Notes"
 ]
 
 
@@ -183,6 +184,11 @@ with st.form("add_item"):
         "Box Number",
         ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
         horizontal=True
+    ),
+
+    notes = st.text_area(
+        "Box Notes",
+        placeholder="Enter notes for this box..."
     )
 
 
