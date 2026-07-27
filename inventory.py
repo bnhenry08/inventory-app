@@ -267,14 +267,14 @@ st.dataframe(
 
 
 # -----------------------------
-# UPDATE QUANTITY
+# UPDATE ITEM INFORMATION
 # -----------------------------
 
-st.header("Update Quantity")
+st.header("Update Item Information")
 
 
 update_search = st.text_input(
-    "Search item to update quantity"
+    "Search item to update"
 )
 
 
@@ -301,6 +301,7 @@ if update_search:
         options = {
             i:
             (
+                f"{row['Box Name']} | "
                 f"{row['Item']} | "
                 f"Freezer:{row['Freezer Name']} | "
                 f"Rack:{row['Rack Number']} | "
@@ -313,36 +314,86 @@ if update_search:
 
 
         selected = st.selectbox(
-            "Matching items",
+            "Select item to update",
             list(options.keys()),
             format_func=lambda x: options[x]
         )
 
 
-        new_qty = st.number_input(
-            "New quantity",
+        index = matches.loc[
+            selected,
+            "index"
+        ]
+
+
+        # Current values
+        current = inventory.loc[index]
+
+
+        new_quantity = st.number_input(
+            "Quantity",
             min_value=0,
             step=1,
-            value=int(
-                matches.loc[selected, "Quantity"]
-            )
+            value=int(current["Quantity"])
         )
 
 
-        if st.button(
-            "Update quantity"
-        ):
+        new_freezer = st.radio(
+            "Freezer Name",
+            ["Pig 150", "B", "C", "D", "E"],
+            index=[
+                "Pig 150", "B", "C", "D", "E"
+            ].index(current["Freezer Name"])
+            if current["Freezer Name"] in ["Pig 150", "B", "C", "D", "E"]
+            else 0,
+            horizontal=True
+        )
 
-            index = matches.loc[
-                selected,
-                "index"
+
+        new_rack = st.radio(
+            "Rack Number",
+            [
+                "1", "2", "3", "4", "5", "6",
+                "7", "8", "9", "10", "11", "12"
+            ],
+            index=[
+                "1", "2", "3", "4", "5", "6",
+                "7", "8", "9", "10", "11", "12"
+            ].index(str(current["Rack Number"]))
+            if str(current["Rack Number"]) in [
+                "1", "2", "3", "4", "5", "6",
+                "7", "8", "9", "10", "11", "12"
             ]
+            else 0,
+            horizontal=True
+        )
 
 
-            inventory.loc[
-                index,
-                "Quantity"
-            ] = new_qty
+        new_box = st.radio(
+            "Box Number",
+            [
+                "1", "2", "3", "4", "5", "6",
+                "7", "8", "9", "10", "11", "12"
+            ],
+            index=[
+                "1", "2", "3", "4", "5", "6",
+                "7", "8", "9", "10", "11", "12"
+            ].index(str(current["Box Number"]))
+            if str(current["Box Number"]) in [
+                "1", "2", "3", "4", "5", "6",
+                "7", "8", "9", "10", "11", "12"
+            ]
+            else 0,
+            horizontal=True
+        )
+
+
+        if st.button("Save Updates"):
+
+            inventory.loc[index, "Quantity"] = new_quantity
+            inventory.loc[index, "Freezer Name"] = new_freezer
+            inventory.loc[index, "Rack Number"] = new_rack
+            inventory.loc[index, "Box Number"] = new_box
 
 
             github_sha = save_to_github(
@@ -352,10 +403,27 @@ if update_search:
 
 
             st.success(
-                "Quantity updated and saved to GitHub"
+                "Item information updated and saved to GitHub"
             )
 
             st.rerun()
+
+
+# -----------------------------
+# DOWNLOAD
+# -----------------------------
+
+csv = inventory.to_csv(
+    index=False
+)
+
+
+st.download_button(
+    "Download CSV",
+    csv,
+    "inventory.csv",
+    "text/csv"
+)
 
 # -----------------------------
 # DELETE ITEM
@@ -436,19 +504,3 @@ if delete_search:
             )
 
             st.rerun()
-
-# -----------------------------
-# DOWNLOAD
-# -----------------------------
-
-csv = inventory.to_csv(
-    index=False
-)
-
-
-st.download_button(
-    "Download CSV",
-    csv,
-    "inventory.csv",
-    "text/csv"
-)
