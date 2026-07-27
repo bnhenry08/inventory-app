@@ -424,17 +424,17 @@ if update_search:
            inventory.loc[same_box, "Notes"] = str(new_notes)
 
 
-            github_sha = save_to_github(
+           github_sha = save_to_github(
                 inventory,
                 github_sha
             )
 
 
-            st.success(
+           st.success(
                 "Item information updated and saved to GitHub"
-            )
+           )
 
-            st.rerun()
+           st.rerun()
 # -----------------------------
 # DOWNLOAD
 # -----------------------------
