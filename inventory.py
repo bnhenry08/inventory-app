@@ -168,12 +168,14 @@ with st.form("add_item"):
         horizontal=True
     )
 
-    rack_number = st.text_input(
-        "Rack Number"
+    rack_number = st.radio(
+        "Rack Number",
+        ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]
     )
 
-    box_number = st.text_input(
-        "Box Number"
+    box_number = st.radio(
+        "Box Number",
+        ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]
     )
 
 
