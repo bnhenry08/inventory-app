@@ -164,7 +164,7 @@ with st.form("add_item"):
 
     freezer_name = st.radio(
         "Freezer Name",
-        ["Pig", "B", "C", "D", "E"],
+        ["Pig 150", "B", "C", "D", "E"],
         horizontal=True
     )
 
