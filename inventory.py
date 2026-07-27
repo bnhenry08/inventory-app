@@ -206,7 +206,8 @@ with st.form("add_item"):
                 quantity,
                 freezer_name,
                 rack_number,
-                box_number
+                box_number,
+                notes
             ]],
             columns=COLUMNS
         )
@@ -312,7 +313,8 @@ if update_search:
                 f"Freezer:{row['Freezer Name']} | "
                 f"Rack:{row['Rack Number']} | "
                 f"Box:{row['Box Number']} | "
-                f"Qty:{row['Quantity']}"
+                f"Qty:{row['Quantity']} | "
+                f"Notes:{row['Notes']}"
             )
 
             for i, row in matches.iterrows()
@@ -395,13 +397,20 @@ if update_search:
             else 0,
             horizontal=True
         )
+        new_notes = st.text_area(
+                "Notes",
+        value=str(current["Notes"])
+        if "Notes" in current
+        else ""
+        )
 
-if st.button("Save Updates"):
+     if st.button("Save Updates"):
 
     inventory.loc[index, "Quantity"] = new_quantity
     inventory.loc[index, "Freezer Name"] = new_freezer
     inventory.loc[index, "Rack Number"] = new_rack
     inventory.loc[index, "Box Number"] = new_box
+    inventory.loc[index, "Notes"] = new_notes
 
 
     # Update Notes for the entire box
@@ -493,7 +502,8 @@ if delete_search:
                 f"Freezer:{row['Freezer Name']} | "
                 f"Rack:{row['Rack Number']} | "
                 f"Box:{row['Box Number']} | "
-                f"Qty:{row['Quantity']}"
+                f"Qty:{row['Quantity']} | "
+                f"Notes:{row['Notes']}"
             )
 
             for i, row in delete_matches.iterrows()
