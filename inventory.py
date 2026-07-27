@@ -404,7 +404,7 @@ if update_search:
         else ""
         )
 
-     if st.button("Save Updates"):
+        if st.button("Save Updates"):
 
     inventory.loc[index, "Quantity"] = new_quantity
     inventory.loc[index, "Freezer Name"] = new_freezer
