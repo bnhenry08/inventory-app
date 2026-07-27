@@ -10,7 +10,7 @@ COLUMNS = [
     "Quantity",
     "Freezer Name",
     "Rack Number",
-    "Box Number", 
+    "Box Number",
     "Notes"
 ]
 
@@ -397,7 +397,7 @@ if update_search:
             ].index(str(current["Box Number"]))
             if str(current["Box Number"]) in [
                 "1", "2", "3", "4", "5", "6",
-                "7", "8", "9", "10", "11", "12"
+                "7", "8", "9"
             ]
             else 0,
             horizontal=True
