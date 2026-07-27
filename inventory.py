@@ -403,38 +403,38 @@ if update_search:
             horizontal=True
         )
 
-       if st.button("Save Updates"):
+        if st.button("Save Updates"):
 
-           inventory.loc[index, "Quantity"] = new_quantity
-           inventory.loc[index, "Freezer Name"] = new_freezer
-           inventory.loc[index, "Rack Number"] = str(new_rack)
-           inventory.loc[index, "Box Number"] = str(new_box)
-
-
-           # Find all items in the same box
-           same_box = (
-              (inventory["Box Name"] == current["Box Name"]) &
-              (inventory["Freezer Name"] == new_freezer) &
-              (inventory["Rack Number"] == str(new_rack)) &
-              (inventory["Box Number"] == str(new_box))
-           )
+            inventory.loc[index, "Quantity"] = new_quantity
+            inventory.loc[index, "Freezer Name"] = new_freezer
+            inventory.loc[index, "Rack Number"] = str(new_rack)
+            inventory.loc[index, "Box Number"] = str(new_box)
 
 
-           # Update the note for the entire box
-           inventory.loc[same_box, "Notes"] = str(new_notes)
-
-
-           github_sha = save_to_github(
-              inventory,
-              github_sha
+            # Find all items in the same box
+            same_box = (
+               (inventory["Box Name"] == current["Box Name"]) &
+               (inventory["Freezer Name"] == new_freezer) &
+               (inventory["Rack Number"] == str(new_rack)) &
+               (inventory["Box Number"] == str(new_box))
             )
 
 
-           st.success(
-                "Item information updated and saved to GitHub"
-           )
+            # Update the note for the entire box
+            inventory.loc[same_box, "Notes"] = str(new_notes)
 
-           st.rerun()
+
+            github_sha = save_to_github(
+               inventory,
+               github_sha
+             )
+
+
+            st.success(
+                "Item information updated and saved to GitHub"
+            )
+
+            st.rerun()
 # -----------------------------
 # DOWNLOAD
 # -----------------------------
