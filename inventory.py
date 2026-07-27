@@ -406,12 +406,11 @@ if update_search:
 
         if st.button("Save Updates"):
 
-    inventory.loc[index, "Quantity"] = new_quantity
-    inventory.loc[index, "Freezer Name"] = new_freezer
-    inventory.loc[index, "Rack Number"] = new_rack
-    inventory.loc[index, "Box Number"] = new_box
-    inventory.loc[index, "Notes"] = new_notes
-
+            inventory.loc[index, "Quantity"] = new_quantity
+            inventory.loc[index, "Freezer Name"] = new_freezer
+            inventory.loc[index, "Rack Number"] = new_rack
+            inventory.loc[index, "Box Number"] = new_box
+            inventory.loc[index, "Notes"] = new_notes
 
     # Update Notes for the entire box
     same_box = (
