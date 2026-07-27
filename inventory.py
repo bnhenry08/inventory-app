@@ -335,7 +335,10 @@ if update_search:
         # Current values
         current = inventory.loc[index]
 
-
+        new_notes = st.text_area(
+            "Box Notes",
+            value=str(current["Notes"])
+        )
         new_quantity = st.number_input(
             "Quantity",
             min_value=0,
@@ -393,7 +396,27 @@ if update_search:
             horizontal=True
         )
 
+if st.button("Save Updates"):
 
+    inventory.loc[index, "Quantity"] = new_quantity
+    inventory.loc[index, "Freezer Name"] = new_freezer
+    inventory.loc[index, "Rack Number"] = new_rack
+    inventory.loc[index, "Box Number"] = new_box
+
+
+    # Update Notes for the entire box
+    same_box = (
+        (inventory["Box Name"] == current["Box Name"]) &
+        (inventory["Freezer Name"] == current["Freezer Name"]) &
+        (inventory["Rack Number"] == current["Rack Number"]) &
+        (inventory["Box Number"] == current["Box Number"])
+    )
+
+
+    inventory.loc[
+        same_box,
+        "Notes"
+    ] = new_notes
         if st.button("Save Updates"):
 
             inventory.loc[index, "Quantity"] = new_quantity
