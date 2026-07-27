@@ -66,6 +66,9 @@ def load_from_github():
         if col not in df.columns:
             df[col] = ""
 
+    # Make sure these columns are stored as text
+    df["Rack Number"] = df["Rack Number"].astype(str)
+    df["Box Number"] = df["Box Number"].astype(str)
 
     return df[COLUMNS], data["sha"]
 
@@ -408,8 +411,8 @@ if update_search:
 
             inventory.loc[index, "Quantity"] = new_quantity
             inventory.loc[index, "Freezer Name"] = new_freezer
-            inventory.loc[index, "Rack Number"] = new_rack
-            inventory.loc[index, "Box Number"] = new_box
+            inventory.loc[index, "Rack Number"] = str(new_rack)
+            inventory.loc[index, "Box Number"] = str(new_box)
 
 
             github_sha = save_to_github(
