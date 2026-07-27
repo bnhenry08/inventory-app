@@ -5,7 +5,7 @@ import base64
 from io import StringIO
 
 COLUMNS = [
-    "Box Name"
+    "Box Name",
     "Item",
     "Quantity",
     "Freezer Name",
