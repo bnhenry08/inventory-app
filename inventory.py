@@ -437,17 +437,19 @@ if update_search:
             )
 
             st.rerun()
+
 # -----------------------------
 # DOWNLOAD
 # -----------------------------
+
+st.header("⬇️ Download Inventory")
 
 csv = inventory.to_csv(
     index=False
 )
 
-
 st.download_button(
-    "Download CSV",
+    "📥 Download CSV 📥 ",
     csv,
     "inventory.csv",
     "text/csv"
