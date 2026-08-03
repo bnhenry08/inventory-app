@@ -146,7 +146,7 @@ if not st.session_state.auth:
 inventory, github_sha = load_from_github()
 
 
-st.title("Johsi/Mortimer -20°C Freezer Inventory")
+st.title("❄️ -20°C Freezer Inventory ❄️")
 
 
 # -----------------------------
