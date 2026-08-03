@@ -175,7 +175,7 @@ with st.form("add_item"):
 
     freezer_name = st.radio(
         "Freezer Name",
-        ["Pig 150", "Rabbit 150", "C", "D", "E"],
+        ["Pig 150", "Rabbit 150", "Frog 144", "Lobster 144"],
         horizontal=True
     )
 
@@ -356,11 +356,11 @@ if update_search:
 
         new_freezer = st.radio(
             "Freezer Name",
-            ["Pig 150", "Rabbit 150", "C", "D", "E"],
+            ["Pig 150", "Rabbit 150", "Frog 144", "Lobster 144"],
             index=[
-                "Pig 150", "Rabbit 150", "C", "D", "E"
+                "Pig 150", "Rabbit 150", "Frog 144", "Lobster 144",
             ].index(current["Freezer Name"])
-            if current["Freezer Name"] in ["Pig 150", "Rabbit 150", "C", "D", "E"]
+            if current["Freezer Name"] in ["Pig 150", "Rabbit 150", "Frog 144", "Lobster 144"]
             else 0,
             horizontal=True
         )
