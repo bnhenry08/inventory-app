@@ -153,7 +153,7 @@ st.title("❄️ -20°C Freezer Inventory ❄️")
 # ADD ITEM
 # -----------------------------
 
-st.header("Add Item")
+st.header("➕  Add Item ➕ ")
 
 
 with st.form("add_item"):
@@ -242,7 +242,7 @@ with st.form("add_item"):
 # SEARCH
 # -----------------------------
 
-st.header("Search")
+st.header("🔍  Search 🔍 ")
 
 
 search = st.text_input(
@@ -281,7 +281,7 @@ st.dataframe(
 # UPDATE ITEM INFORMATION
 # -----------------------------
 
-st.header("Update Item Information")
+st.header("✏️  Update Item Information" ✏️")
 
 
 update_search = st.text_input(
@@ -454,7 +454,7 @@ st.download_button(
 # DELETE ITEM
 # -----------------------------
 
-st.header("Delete Item")
+st.header("❌  Delete Item ❌ ")
 
 
 delete_search = st.text_input(
