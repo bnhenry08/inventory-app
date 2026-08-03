@@ -121,22 +121,25 @@ if not st.session_state.auth:
 
     st.title("Inventory Login")
 
-    password = st.text_input(
-        "Enter password",
-        type="password"
-    )
+    with st.form("login_form"):
 
-    if st.button("Login"):
+        password = st.text_input(
+            "Enter password",
+            type="password"
+        )
 
-        if password == st.secrets["password"]:
-            st.session_state.auth = True
-            st.rerun()
+        submitted = st.form_submit_button("Login")
 
-        else:
-            st.error("Wrong password")
+        if submitted:
+
+            if password == st.secrets["password"]:
+                st.session_state.auth = True
+                st.rerun()
+
+            else:
+                st.error("Wrong password")
 
     st.stop()
-
 
 
 # -----------------------------
@@ -281,7 +284,7 @@ st.dataframe(
 # UPDATE ITEM INFORMATION
 # -----------------------------
 
-st.header("✏️  Update Item Information" ✏️ ")
+st.header("✏️ Update Item Information ✏️")
 
 
 update_search = st.text_input(
