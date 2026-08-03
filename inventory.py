@@ -281,7 +281,7 @@ st.dataframe(
 # UPDATE ITEM INFORMATION
 # -----------------------------
 
-st.header("✏️  Update Item Information" ✏️")
+st.header("✏️  Update Item Information" ✏️ ")
 
 
 update_search = st.text_input(
