@@ -119,7 +119,7 @@ if "auth" not in st.session_state:
 
 if not st.session_state.auth:
 
-    st.title("Inventory Login")
+    st.title("🧬  Inventory Login 🧬 ")
 
     with st.form("login_form"):
 
