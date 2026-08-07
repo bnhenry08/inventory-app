@@ -10,14 +10,14 @@ col1, col2 = st.columns(2)
 
 with col1:
     st.page_link(
-        "pages/20C_inventory.py",
+        "pages/inventory_20C.py",
         label="❄️ -20°C Inventory",
         icon="📦"
     )
 
 with col2:
     st.page_link(
-        "pages/80C_inventory.py",
+        "pages/inventory_80C.py",
         label="🧊 -80°C Inventory",
         icon="🧪"
     )
