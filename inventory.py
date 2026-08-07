@@ -16,7 +16,7 @@ with col1:
         "❄️ -20°C Inventory",
         use_container_width=True
     ):
-        st.switch_page("pages/inventory_20C.py")
+        st.switch_page("pages/freezer_20C.py")
 
 
 with col2:
@@ -24,4 +24,4 @@ with col2:
         "🧊 -80°C Inventory",
         use_container_width=True
     ):
-        st.switch_page("pages/inventory_80C.py")
+        st.switch_page("pages/freezer_80C.py")
