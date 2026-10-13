@@ -22,6 +22,10 @@ pg = st.navigation(
             title="🧊 -80°C Inventory",
             icon="🧪"
         ),
+        st.Page(
+            "pages/restriction_enzymes.py",
+            tittle="✂️  Restriction Enzymes"",
+            icon="✂️"
     ]
 )
 
