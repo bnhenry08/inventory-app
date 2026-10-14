@@ -454,6 +454,31 @@ if update_search:
         index = matches.loc[selected, "index"]
         current = inventory.loc[index]
 
+        # Box Name options
+        box_name_options = [
+            "Antibiotics [Puromycin, Kanamycin, Carbenicillin]",
+            "Antibiotics [Hygromycin, Tetracyclin]",
+            "Xgal, IPTG Aliquotes [Blue/White Screening]",
+            "dNTP",
+            "Western Blot",
+            "DNase, Pro.K, Phosphotase, RNase, PUREExpress, Capping",
+            "1KB+ DNA Ladder Aliquotes",
+            "T4 Ligase, Monarch Carrier RNA",
+            "PCR MM Aliquot, Cloning MM Aliquots"
+        ]
+
+        new_box_name = st.radio(
+            "Box Name",
+            box_name_options,
+            index=(
+                box_name_options.index(current["Box Name"])
+                if current["Box Name"] in box_name_options
+                else 0
+            ),
+            horizontal=True,
+            key="update_box_name"
+        )
+
         new_notes = st.text_area(
             "Box Notes",
             value=str(current["Notes"]),
