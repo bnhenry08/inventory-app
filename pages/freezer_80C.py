@@ -24,7 +24,8 @@ BOX_NAMES = [
     "DNase, Pro.K, Phosphotase, RNase, PUREExpress, Capping",
     "1KB+ DNA Ladder Aliquotes",
     "T4 Ligase, Monarch Carrier RNA",
-    "PCR MM Aliquot, Cloning MM Aliquots"
+    "PCR MM Aliquot, Cloning MM Aliquots",
+    "Restriction Enzymes"
 ]
 
 FREEZER_NAMES = [
@@ -454,6 +455,32 @@ if update_search:
         index = matches.loc[selected, "index"]
         current = inventory.loc[index]
 
+        # Box Name options
+        box_name_options = [
+            "Antibiotics [Puromycin, Kanamycin, Carbenicillin]",
+            "Antibiotics [Hygromycin, Tetracyclin]",
+            "Xgal, IPTG Aliquotes [Blue/White Screening]",
+            "dNTP",
+            "Western Blot",
+            "DNase, Pro.K, Phosphotase, RNase, PUREExpress, Capping",
+            "1KB+ DNA Ladder Aliquotes",
+            "T4 Ligase, Monarch Carrier RNA",
+            "PCR MM Aliquot, Cloning MM Aliquots",
+            "Restriction Enzymes"
+        ]
+
+        new_box_name = st.radio(
+            "Box Name",
+            box_name_options,
+            index=(
+                box_name_options.index(current["Box Name"])
+                if current["Box Name"] in box_name_options
+                else 0
+            ),
+            horizontal=True,
+            key="update_box_name"
+        )
+
         new_notes = st.text_area(
             "Box Notes",
             value=str(current["Notes"]),
@@ -525,6 +552,7 @@ if update_search:
 
             old_box_name = current["Box Name"]
 
+            inventory.loc[index, "Box Name"] = new_box_name
             inventory.loc[index, "Quantity"] = new_quantity
             inventory.loc[index, "Freezer Name"] = new_freezer
             inventory.loc[index, "Rack Number"] = str(new_rack)
@@ -532,10 +560,10 @@ if update_search:
 
             # Update notes for all items in the same box.
             same_box = (
-                (inventory["Box Name"] == old_box_name) &
-                (inventory["Freezer Name"] == new_freezer) &
-                (inventory["Rack Number"] == str(new_rack)) &
-                (inventory["Box Number"] == str(new_box))
+            (inventory["Box Name"] == current["Box Name"]) &
+            (inventory["Freezer Name"] == new_freezer) &
+            (inventory["Rack Number"] == str(new_rack)) &
+            (inventory["Box Number"] == str(new_box))
             )
 
             inventory.loc[same_box, "Notes"] = str(new_notes)
