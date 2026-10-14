@@ -550,6 +550,7 @@ if update_search:
 
             old_box_name = current["Box Name"]
 
+            inventory.loc[index, "Box Name"] = new_box_name
             inventory.loc[index, "Quantity"] = new_quantity
             inventory.loc[index, "Freezer Name"] = new_freezer
             inventory.loc[index, "Rack Number"] = str(new_rack)
@@ -557,10 +558,10 @@ if update_search:
 
             # Update notes for all items in the same box.
             same_box = (
-                (inventory["Box Name"] == old_box_name) &
-                (inventory["Freezer Name"] == new_freezer) &
-                (inventory["Rack Number"] == str(new_rack)) &
-                (inventory["Box Number"] == str(new_box))
+            (inventory["Box Name"] == current["Box Name"]) &
+            (inventory["Freezer Name"] == new_freezer) &
+            (inventory["Rack Number"] == str(new_rack)) &
+            (inventory["Box Number"] == str(new_box))
             )
 
             inventory.loc[same_box, "Notes"] = str(new_notes)
