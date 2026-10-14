@@ -22,7 +22,7 @@ pg = st.navigation(
         ),
         st.Page(
             "pages/restriction_enzymes.py",
-            tittle="✂️  Restriction Enzymes""
+            tittle="✂️  Restriction Enzymes"
      ]
 )
 
