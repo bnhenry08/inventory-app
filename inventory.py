@@ -14,19 +14,16 @@ pg = st.navigation(
         ),
         st.Page(
             "pages/freezer_20C.py",
-            title="❄️ -20°C Inventory",
-            icon="📦"
+            title="❄️ -20°C Inventory""
         ),
         st.Page(
             "pages/freezer_80C.py",
-            title="🧊 -80°C Inventory",
-            icon="🧪"
+            title="🧊 -80°C Inventory"
         ),
         st.Page(
             "pages/restriction_enzymes.py",
-            tittle="✂️  Restriction Enzymes"",
-            icon="✂️"
-    ]
+            tittle="✂️  Restriction Enzymes""
+     ]
 )
 
 if pg.title == "Home":
@@ -50,5 +47,12 @@ if pg.title == "Home":
             use_container_width=True
         ):
             st.switch_page("pages/freezer_80C.py")
+
+     with col3:
+        if st.button(
+            "✂️  Restriction Enzymes", 
+            use_container_width=True
+        ):
+            st.switch_page("pages/restriction_enzymes.py")
 
 pg.run()
