@@ -260,14 +260,23 @@ st.caption(
 
 st.header("➕ Add Restriction Enzyme")
 
-# First row: Enzyme Name, Time Saver, Temperature
-name_col, saver_col, temp_col = st.columns([3, 1, 1])
+# TOP ROW: Enzyme Name | Dilute Before Use | Time Saver
+name_col, dilute_col, saver_col = st.columns([3, 1, 1])
 
 with name_col:
     enzyme_name = st.text_input(
         "Enzyme Name",
         placeholder="Enter enzyme name",
         key="add_enzyme_name"
+    )
+
+with dilute_col:
+    dilute_before_use = st.radio(
+        "Dilute Before Use",
+        YES_NO,
+        horizontal=True,
+        index=1,
+        key="add_dilute_before_use"
     )
 
 with saver_col:
@@ -279,21 +288,21 @@ with saver_col:
         key="add_time_saver"
     )
 
+# SECOND ROW: Buffers | Temperature | Notes
+buffer_col, temp_col, notes_col = st.columns([2, 1, 2])
+
+with buffer_col:
+    buffer_value = buffer_checkboxes(
+        prefix="add",
+        selected_buffers=[]
+    )
+
 with temp_col:
     temperature = st.selectbox(
         "Temperature",
         TEMPERATURES,
         index=TEMPERATURES.index("37°C"),
         key="add_temperature"
-    )
-
-# Second row: Buffers on the left, Notes on the right
-buffer_col, notes_col = st.columns([2, 1])
-
-with buffer_col:
-    buffer_value = buffer_checkboxes(
-        prefix="add",
-        selected_buffers=[]
     )
 
 with notes_col:
@@ -303,14 +312,6 @@ with notes_col:
         height=150,
         key="add_enzyme_notes"
     )
-
-dilute_before_use = st.radio(
-    "Dilute Before Use",
-    YES_NO,
-    horizontal=True,
-    index=1,
-    key="add_dilute_before_use"
-)
 
 if st.button("Add Enzyme", key="add_enzyme_button"):
 
@@ -416,14 +417,31 @@ else:
 
     current = inventory.loc[selected_index]
 
-    # First row: Enzyme Name, Time Saver, Temperature
-    name_col, saver_col, temp_col = st.columns([3, 1, 1])
+    # TOP ROW: Enzyme Name | Dilute Before Use | Time Saver
+    name_col, dilute_col, saver_col = st.columns([3, 1, 1])
 
     with name_col:
         updated_enzyme_name = st.text_input(
             "Enzyme Name",
             value=str(current["Enzyme Name"]),
             key=f"edit_enzyme_name_{selected_index}"
+        )
+
+    with dilute_col:
+        current_dilute = str(current["Dilute Before Use"])
+
+        dilute_index = (
+            YES_NO.index(current_dilute)
+            if current_dilute in YES_NO
+            else 1
+        )
+
+        updated_dilute = st.radio(
+            "Dilute Before Use",
+            YES_NO,
+            index=dilute_index,
+            horizontal=True,
+            key=f"edit_dilute_{selected_index}"
         )
 
     with saver_col:
@@ -443,6 +461,19 @@ else:
             key=f"edit_time_saver_{selected_index}"
         )
 
+    # SECOND ROW: Buffers | Temperature | Notes
+    buffer_col, temp_col, notes_col = st.columns([2, 1, 2])
+
+    with buffer_col:
+        current_buffers = parse_buffers(
+            current["Buffer for 100% Activity"]
+        )
+
+        updated_buffer_value = buffer_checkboxes(
+            prefix=f"edit_{selected_index}",
+            selected_buffers=current_buffers
+        )
+
     with temp_col:
         current_temperature = str(current["Temperature"])
 
@@ -459,19 +490,6 @@ else:
             key=f"edit_temperature_{selected_index}"
         )
 
-    # Second row: Buffers on the left, Notes on the right
-    buffer_col, notes_col = st.columns([2, 1])
-
-    with buffer_col:
-        current_buffers = parse_buffers(
-            current["Buffer for 100% Activity"]
-        )
-
-        updated_buffer_value = buffer_checkboxes(
-            prefix=f"edit_{selected_index}",
-            selected_buffers=current_buffers
-        )
-
     with notes_col:
         updated_notes = st.text_area(
             "Notes",
@@ -479,22 +497,6 @@ else:
             height=150,
             key=f"edit_notes_{selected_index}"
         )
-
-    current_dilute = str(current["Dilute Before Use"])
-
-    dilute_index = (
-        YES_NO.index(current_dilute)
-        if current_dilute in YES_NO
-        else 1
-    )
-
-    updated_dilute = st.radio(
-        "Dilute Before Use",
-        YES_NO,
-        index=dilute_index,
-        horizontal=True,
-        key=f"edit_dilute_{selected_index}"
-    )
 
     if st.button(
         "Save Enzyme Updates",
