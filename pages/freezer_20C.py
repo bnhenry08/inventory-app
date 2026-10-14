@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import requests
@@ -381,7 +380,7 @@ with st.form("add_new_box_form"):
 # SEARCH
 # -----------------------------
 
-st.header("🔍 Search")
+st.header("🔍 Search All Inventories")
 
 search = st.text_input("Search items", key="inventory_search")
 
