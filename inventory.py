@@ -14,17 +14,17 @@ pg = st.navigation(
         ),
         st.Page(
             "pages/freezer_20C.py",
-            title="❄️ -20°C Inventory",
+            title="20°C Inventory",
             icon="❄️"
         ),
         st.Page(
             "pages/freezer_80C.py",
-            title="🧊 -80°C Inventory",
+            title="-80°C Inventory",
             icon="🧊"
         ),
         st.Page(
             "pages/restriction_enzymes.py",
-            title="✂️ Restriction Enzymes",
+            title="estriction Enzymes",
             icon="✂️"
         )
     ]
