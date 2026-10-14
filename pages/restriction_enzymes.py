@@ -36,10 +36,12 @@ TEMPERATURES = [
     "75°C"
 ]
 
+# Buffer options are displayed in this order.
 BUFFER_OPTIONS = [
-    "NEBuffer r3.1",
     "rCutSmart™ Buffer",
-    "Different Buffer"
+    "NEBuffer r3.1",
+    "NEBuffer r1.1",
+    "NEBuffer r2.1"
 ]
 
 
@@ -63,21 +65,22 @@ def github_url():
 
 
 def load_enzymes():
-    """Load the dedicated restriction enzyme CSV from GitHub."""
-
-    response = requests.get(
-        github_url(),
-        headers=github_headers(),
-        timeout=30
-    )
+    try:
+        response = requests.get(
+            github_url(),
+            headers=github_headers(),
+            timeout=30
+        )
+    except requests.RequestException as exc:
+        st.error(f"Could not connect to GitHub: {exc}")
+        return None, None
 
     if response.status_code == 404:
-        # File does not exist yet; start with an empty inventory.
         return pd.DataFrame(columns=ENZYME_COLUMNS), None
 
     if response.status_code != 200:
         st.error(
-            "Could not load restriction enzyme inventory from GitHub. "
+            "Could not load the restriction enzyme CSV from GitHub. "
             f"HTTP {response.status_code}: {response.text}"
         )
         return None, None
@@ -95,18 +98,14 @@ def load_enzymes():
             df = pd.DataFrame(columns=ENZYME_COLUMNS)
 
     except Exception as exc:
-        st.error(f"Could not read the enzyme CSV: {exc}")
+        st.error(f"Could not read the restriction enzyme CSV: {exc}")
         return None, None
 
-    # Add any missing columns without discarding existing data.
     for column in ENZYME_COLUMNS:
         if column not in df.columns:
             df[column] = ""
 
-    df = df[ENZYME_COLUMNS]
-
-    # Normalize missing values.
-    df = df.fillna("")
+    df = df[ENZYME_COLUMNS].fillna("")
 
     for column in ENZYME_COLUMNS:
         df[column] = df[column].astype(str)
@@ -115,8 +114,6 @@ def load_enzymes():
 
 
 def save_enzymes(df, sha):
-    """Save the enzyme inventory to its dedicated GitHub CSV."""
-
     csv_content = df[ENZYME_COLUMNS].to_csv(index=False)
 
     encoded_content = base64.b64encode(
@@ -125,32 +122,109 @@ def save_enzymes(df, sha):
 
     payload = {
         "message": (
-            "Update restriction enzyme inventory "
+            f"Update restriction enzyme inventory "
             f"{pd.Timestamp.now()}"
         ),
         "content": encoded_content
     }
 
-    # GitHub requires the current SHA when updating an existing file.
     if sha:
         payload["sha"] = sha
 
-    response = requests.put(
-        github_url(),
-        headers=github_headers(),
-        json=payload,
-        timeout=30
-    )
+    try:
+        response = requests.put(
+            github_url(),
+            headers=github_headers(),
+            json=payload,
+            timeout=30
+        )
+    except requests.RequestException as exc:
+        st.error(f"Could not connect to GitHub to save changes: {exc}")
+        return None
 
     if response.status_code in [200, 201]:
         return response.json()["content"]["sha"]
 
     st.error(
-        "Could not save restriction enzyme inventory to GitHub. "
+        "Could not save the restriction enzyme CSV to GitHub. "
         f"HTTP {response.status_code}: {response.text}"
     )
 
     return None
+
+
+# -----------------------------
+# BUFFER SELECTION
+# -----------------------------
+
+def buffer_checkboxes(prefix, selected_buffers=None):
+    """
+    Display buffer checkboxes in the configured order.
+    Return all selected buffers as a comma-separated string.
+    """
+
+    if selected_buffers is None:
+        selected_buffers = []
+
+    selected_buffers = [b.strip() for b in selected_buffers]
+
+    st.write("**Buffer(s) for 100% Activity**")
+
+    chosen_buffers = []
+
+    for i, buffer_name in enumerate(BUFFER_OPTIONS):
+        checked = st.checkbox(
+            buffer_name,
+            value=buffer_name in selected_buffers,
+            key=f"{prefix}_buffer_{i}"
+        )
+
+        if checked:
+            chosen_buffers.append(buffer_name)
+
+    different_buffer = st.checkbox(
+        "Different Buffer",
+        value=any(
+            b not in BUFFER_OPTIONS and b.strip()
+            for b in selected_buffers
+        ),
+        key=f"{prefix}_different_buffer"
+    )
+
+    if different_buffer:
+        existing_custom_buffers = [
+            b for b in selected_buffers
+            if b not in BUFFER_OPTIONS and b.strip()
+        ]
+
+        custom_default = ", ".join(existing_custom_buffers)
+
+        custom_buffer_names = st.text_input(
+            "Enter other buffer name(s)",
+            value=custom_default,
+            placeholder="Enter buffer name(s)",
+            key=f"{prefix}_custom_buffer_names"
+        )
+
+        if custom_buffer_names.strip():
+            chosen_buffers.extend(
+                b.strip()
+                for b in custom_buffer_names.split(",")
+                if b.strip()
+            )
+
+    return ", ".join(chosen_buffers)
+
+
+def parse_buffers(buffer_value):
+    if not buffer_value or not str(buffer_value).strip():
+        return []
+
+    return [
+        b.strip()
+        for b in str(buffer_value).split(",")
+        if b.strip()
+    ]
 
 
 # -----------------------------
@@ -161,11 +235,9 @@ if "auth" not in st.session_state:
     st.session_state.auth = False
 
 if not st.session_state.auth:
+    st.title("🧬 Inventory Login 🧬")
 
-    st.title("🧬 Restriction Enzyme Inventory")
-
-    with st.form("restriction_enzyme_login"):
-
+    with st.form("restriction_enzyme_login_form"):
         password = st.text_input(
             "Enter password",
             type="password"
@@ -187,192 +259,162 @@ if not st.session_state.auth:
 # LOAD INVENTORY
 # -----------------------------
 
-st.title("🧬 Restriction Enzyme Inventory")
-
-st.info(
-    "Storage location for all enzymes: "
-    "**Pig 150 → Rack 11 → Box 1**"
-)
-
 inventory, github_sha = load_enzymes()
 
 if inventory is None:
-    st.warning(
+    st.error(
         "The enzyme inventory could not be loaded. "
-        "No changes can be made until the loading problem is fixed."
+        "No changes can be made until the problem is resolved."
     )
     st.stop()
 
 
 # -----------------------------
-# ADD RESTRICTION ENZYME
+# PAGE TITLE
+# -----------------------------
+
+st.title("🧬 Restriction Enzymes")
+
+st.caption(
+    "Storage location for these enzymes: "
+    f"{FREEZER_NAME} | Rack {RACK_NUMBER} | Box {BOX_NUMBER}"
+)
+
+
+# -----------------------------
+# ADD ENZYME
 # -----------------------------
 
 st.header("➕ Add Restriction Enzyme")
 
-with st.form("add_restriction_enzyme_form"):
+enzyme_name = st.text_input(
+    "Enzyme Name",
+    placeholder="Enter enzyme name",
+    key="add_enzyme_name"
+)
 
-    enzyme_name = st.text_input(
-        "Enzyme Name",
-        placeholder="e.g., EcoRI, BamHI, HindIII"
-    )
+time_saver = st.radio(
+    "Time Saver",
+    YES_NO,
+    horizontal=True,
+    index=0,
+    key="add_time_saver"
+)
 
-    time_saver = st.radio(
-        "Time Saver",
-        YES_NO,
-        horizontal=True,
-        index=0
-    )
+temperature = st.selectbox(
+    "Temperature",
+    TEMPERATURES,
+    index=TEMPERATURES.index("37°C"),
+    key="add_temperature"
+)
 
-    temperature = st.radio(
-        "Temperature",
-        TEMPERATURES,
-        horizontal=True,
-        index=1
-    )
+buffer_value = buffer_checkboxes(
+    prefix="add",
+    selected_buffers=[]
+)
 
-    buffer = st.radio(
-        "Buffer for 100% Activity",
-        BUFFER_OPTIONS,
-        horizontal=True,
-        index=1
-    )
+dilute_before_use = st.radio(
+    "Dilute Before Use",
+    YES_NO,
+    horizontal=True,
+    index=1,
+    key="add_dilute_before_use"
+)
 
-    custom_buffer = ""
+notes = st.text_area(
+    "Notes",
+    placeholder="Enter any additional notes",
+    key="add_enzyme_notes"
+)
 
-    if buffer == "Different Buffer":
-        custom_buffer = st.text_input(
-            "Specify Buffer",
-            placeholder="Enter the buffer name"
+if st.button("Add Enzyme", key="add_enzyme_button"):
+
+    if not enzyme_name.strip():
+        st.error("Please enter an enzyme name.")
+
+    elif not buffer_value:
+        st.error("Please select at least one buffer.")
+
+    else:
+        new_row = pd.DataFrame(
+            [[
+                enzyme_name.strip(),
+                FREEZER_NAME,
+                RACK_NUMBER,
+                BOX_NUMBER,
+                time_saver,
+                temperature,
+                buffer_value,
+                dilute_before_use,
+                notes.strip()
+            ]],
+            columns=ENZYME_COLUMNS
         )
 
-    dilute_before_use = st.radio(
-        "Dilute Before Use",
-        YES_NO,
-        horizontal=True,
-        index=1
-    )
+        updated_inventory = pd.concat(
+            [inventory, new_row],
+            ignore_index=True
+        )
 
-    notes = st.text_area(
-        "Notes",
-        placeholder="Optional notes",
-        height=80
-    )
+        new_sha = save_enzymes(updated_inventory, github_sha)
 
-    add_submitted = st.form_submit_button(
-        "Add Restriction Enzyme"
-    )
-
-    if add_submitted:
-
-        if not enzyme_name.strip():
-            st.error("Please enter an enzyme name.")
-
-        elif (
-            buffer == "Different Buffer"
-            and not custom_buffer.strip()
-        ):
-            st.error("Please specify the buffer.")
-
-        else:
-
-            final_buffer = (
-                custom_buffer.strip()
-                if buffer == "Different Buffer"
-                else buffer
+        if new_sha is not None:
+            st.success(
+                f"{enzyme_name.strip()} was saved to GitHub."
             )
-
-            new_row = pd.DataFrame(
-                [{
-                    "Enzyme Name": enzyme_name.strip(),
-                    "Freezer Name": FREEZER_NAME,
-                    "Rack Number": RACK_NUMBER,
-                    "Box Number": BOX_NUMBER,
-                    "Time Saver": time_saver,
-                    "Temperature": temperature,
-                    "Buffer for 100% Activity": final_buffer,
-                    "Dilute Before Use": dilute_before_use,
-                    "Notes": notes.strip()
-                }],
-                columns=ENZYME_COLUMNS
-            )
-
-            updated_inventory = pd.concat(
-                [inventory, new_row],
-                ignore_index=True
-            )
-
-            new_sha = save_enzymes(
-                updated_inventory,
-                github_sha
-            )
-
-            if new_sha is not None:
-                st.success(
-                    f"{enzyme_name.strip()} saved to "
-                    "restriction_enzymes.csv."
-                )
-                st.rerun()
+            st.rerun()
 
 
 # -----------------------------
-# VIEW AND SEARCH ENZYMES
+# SEARCH AND VIEW ENZYMES
 # -----------------------------
 
 st.divider()
-st.header("📋 Restriction Enzyme Inventory")
+st.header("🔍 Search and View Enzymes")
 
 search = st.text_input(
-    "Search enzyme name, buffer, temperature, or notes",
+    "Search enzymes",
     key="enzyme_search"
 )
 
 if search:
-    search_mask = inventory.astype(str).apply(
-        lambda column: column.str.contains(
-            search,
-            case=False,
-            na=False,
-            regex=False
+    filtered = inventory[
+        inventory.astype(str).apply(
+            lambda row: row.str.contains(
+                search,
+                case=False,
+                na=False,
+                regex=False
+            ).any(),
+            axis=1
         )
-    ).any(axis=1)
-
-    displayed_inventory = inventory.loc[
-        search_mask
-    ].copy()
-
+    ]
 else:
-    displayed_inventory = inventory.copy()
+    filtered = inventory
 
 st.dataframe(
-    displayed_inventory,
+    filtered,
     use_container_width=True,
     hide_index=True
 )
 
-st.caption(
-    f"Total enzymes registered: {len(inventory)}"
-)
-
 
 # -----------------------------
-# UPDATE RESTRICTION ENZYME
+# UPDATE ENZYME
 # -----------------------------
 
 st.divider()
-st.header("✏️ Update Restriction Enzyme")
+st.header("✏️ Update Enzyme Information")
 
 if inventory.empty:
-
-    st.info("Add an enzyme before trying to update one.")
+    st.info("No enzymes have been added yet.")
 
 else:
-
     enzyme_options = {
         i: (
             f"{row['Enzyme Name']} | "
-            f"{row['Temperature']} | "
-            f"{row['Buffer for 100% Activity']}"
+            f"Buffers: {row['Buffer for 100% Activity']} | "
+            f"Temperature: {row['Temperature']}"
         )
         for i, row in inventory.iterrows()
     }
@@ -380,208 +422,184 @@ else:
     selected_index = st.selectbox(
         "Select enzyme to update",
         list(enzyme_options.keys()),
-        format_func=lambda i: enzyme_options[i],
-        key="selected_enzyme_update"
+        format_func=lambda x: enzyme_options[x],
+        key="update_enzyme_selection"
     )
 
     current = inventory.loc[selected_index]
 
-    with st.form("update_restriction_enzyme_form"):
+    st.write("**Enzyme Name**")
 
-        updated_name = st.text_input(
-            "Enzyme Name",
-            value=str(current["Enzyme Name"])
-        )
+    updated_enzyme_name = st.text_input(
+        "Edit enzyme name",
+        value=str(current["Enzyme Name"]),
+        key=f"edit_enzyme_name_{selected_index}"
+    )
 
-        current_time_saver = str(current["Time Saver"])
+    current_time_saver = str(current["Time Saver"])
+    time_saver_index = (
+        YES_NO.index(current_time_saver)
+        if current_time_saver in YES_NO
+        else 0
+    )
 
-        updated_time_saver = st.radio(
-            "Time Saver",
-            YES_NO,
-            index=(
-                YES_NO.index(current_time_saver)
-                if current_time_saver in YES_NO
-                else 0
-            ),
-            horizontal=True
-        )
+    updated_time_saver = st.radio(
+        "Time Saver",
+        YES_NO,
+        index=time_saver_index,
+        horizontal=True,
+        key=f"edit_time_saver_{selected_index}"
+    )
 
-        current_temperature = str(current["Temperature"])
+    current_temperature = str(current["Temperature"])
+    temperature_index = (
+        TEMPERATURES.index(current_temperature)
+        if current_temperature in TEMPERATURES
+        else TEMPERATURES.index("37°C")
+    )
 
-        updated_temperature = st.radio(
-            "Temperature",
-            TEMPERATURES,
-            index=(
-                TEMPERATURES.index(current_temperature)
-                if current_temperature in TEMPERATURES
-                else 1
-            ),
-            horizontal=True
-        )
+    updated_temperature = st.selectbox(
+        "Temperature",
+        TEMPERATURES,
+        index=temperature_index,
+        key=f"edit_temperature_{selected_index}"
+    )
 
-        current_buffer = str(
-            current["Buffer for 100% Activity"]
-        )
+    current_buffers = parse_buffers(
+        current["Buffer for 100% Activity"]
+    )
 
-        if current_buffer in BUFFER_OPTIONS:
-            buffer_index = BUFFER_OPTIONS.index(current_buffer)
-            current_custom_buffer = ""
-        elif current_buffer:
-            buffer_index = BUFFER_OPTIONS.index("Different Buffer")
-            current_custom_buffer = current_buffer
+    updated_buffer_value = buffer_checkboxes(
+        prefix=f"edit_{selected_index}",
+        selected_buffers=current_buffers
+    )
+
+    current_dilute = str(current["Dilute Before Use"])
+    dilute_index = (
+        YES_NO.index(current_dilute)
+        if current_dilute in YES_NO
+        else 1
+    )
+
+    updated_dilute = st.radio(
+        "Dilute Before Use",
+        YES_NO,
+        index=dilute_index,
+        horizontal=True,
+        key=f"edit_dilute_{selected_index}"
+    )
+
+    updated_notes = st.text_area(
+        "Notes",
+        value=str(current["Notes"]),
+        key=f"edit_notes_{selected_index}"
+    )
+
+    if st.button("Save Enzyme Updates", key="save_enzyme_updates"):
+
+        if not updated_enzyme_name.strip():
+            st.error("Please enter an enzyme name.")
+
+        elif not updated_buffer_value:
+            st.error("Please select at least one buffer.")
+
         else:
-            buffer_index = 1
-            current_custom_buffer = ""
+            updated_inventory = inventory.copy()
 
-        updated_buffer = st.radio(
-            "Buffer for 100% Activity",
-            BUFFER_OPTIONS,
-            index=buffer_index,
-            horizontal=True
-        )
+            updated_inventory.loc[
+                selected_index, "Enzyme Name"
+            ] = updated_enzyme_name.strip()
 
-        updated_custom_buffer = ""
+            updated_inventory.loc[
+                selected_index, "Time Saver"
+            ] = updated_time_saver
 
-        if updated_buffer == "Different Buffer":
-            updated_custom_buffer = st.text_input(
-                "Specify Buffer",
-                value=current_custom_buffer
+            updated_inventory.loc[
+                selected_index, "Temperature"
+            ] = updated_temperature
+
+            updated_inventory.loc[
+                selected_index, "Buffer for 100% Activity"
+            ] = updated_buffer_value
+
+            updated_inventory.loc[
+                selected_index, "Dilute Before Use"
+            ] = updated_dilute
+
+            updated_inventory.loc[
+                selected_index, "Notes"
+            ] = updated_notes.strip()
+
+            new_sha = save_enzymes(
+                updated_inventory,
+                github_sha
             )
 
-        current_dilute = str(current["Dilute Before Use"])
-
-        updated_dilute = st.radio(
-            "Dilute Before Use",
-            YES_NO,
-            index=(
-                YES_NO.index(current_dilute)
-                if current_dilute in YES_NO
-                else 1
-            ),
-            horizontal=True
-        )
-
-        updated_notes = st.text_area(
-            "Notes",
-            value=str(current["Notes"])
-        )
-
-        update_submitted = st.form_submit_button(
-            "Save Enzyme Updates"
-        )
-
-        if update_submitted:
-
-            if not updated_name.strip():
-                st.error("Please enter an enzyme name.")
-
-            elif (
-                updated_buffer == "Different Buffer"
-                and not updated_custom_buffer.strip()
-            ):
-                st.error("Please specify the buffer.")
-
-            else:
-
-                final_buffer = (
-                    updated_custom_buffer.strip()
-                    if updated_buffer == "Different Buffer"
-                    else updated_buffer
-                )
-
-                inventory.loc[
-                    selected_index, "Enzyme Name"
-                ] = updated_name.strip()
-
-                inventory.loc[
-                    selected_index, "Freezer Name"
-                ] = FREEZER_NAME
-
-                inventory.loc[
-                    selected_index, "Rack Number"
-                ] = RACK_NUMBER
-
-                inventory.loc[
-                    selected_index, "Box Number"
-                ] = BOX_NUMBER
-
-                inventory.loc[
-                    selected_index, "Time Saver"
-                ] = updated_time_saver
-
-                inventory.loc[
-                    selected_index, "Temperature"
-                ] = updated_temperature
-
-                inventory.loc[
-                    selected_index, "Buffer for 100% Activity"
-                ] = final_buffer
-
-                inventory.loc[
-                    selected_index, "Dilute Before Use"
-                ] = updated_dilute
-
-                inventory.loc[
-                    selected_index, "Notes"
-                ] = updated_notes.strip()
-
-                new_sha = save_enzymes(
-                    inventory,
-                    github_sha
-                )
-
-                if new_sha is not None:
-                    st.success("Enzyme updates saved to GitHub.")
-                    st.rerun()
+            if new_sha is not None:
+                st.success("Enzyme information updated in GitHub.")
+                st.rerun()
 
 
 # -----------------------------
-# DELETE RESTRICTION ENZYME
+# DOWNLOAD CSV
 # -----------------------------
 
 st.divider()
-st.header("❌ Delete Restriction Enzyme")
+st.header("⬇️ Download Restriction Enzyme Inventory")
+
+csv_content = inventory.to_csv(index=False)
+
+st.download_button(
+    "Download Enzyme CSV",
+    data=csv_content,
+    file_name="restriction_enzymes.csv",
+    mime="text/csv",
+    key="download_enzyme_csv"
+)
+
+
+# -----------------------------
+# DELETE ENZYME
+# -----------------------------
+
+st.divider()
+st.header("❌ Delete Enzyme")
 
 if inventory.empty:
-
     st.info("There are no enzymes to delete.")
 
 else:
-
     delete_options = {
         i: (
             f"{row['Enzyme Name']} | "
-            f"{row['Temperature']} | "
-            f"{row['Buffer for 100% Activity']}"
+            f"Buffers: {row['Buffer for 100% Activity']} | "
+            f"Temperature: {row['Temperature']}"
         )
         for i, row in inventory.iterrows()
     }
 
-    selected_delete = st.selectbox(
+    delete_index = st.selectbox(
         "Select enzyme to delete",
         list(delete_options.keys()),
-        format_func=lambda i: delete_options[i],
-        key="selected_enzyme_delete"
+        format_func=lambda x: delete_options[x],
+        key="delete_enzyme_selection"
     )
 
     confirm_delete = st.checkbox(
         "I confirm that I want to delete this enzyme.",
-        key="confirm_enzyme_delete"
+        key="confirm_delete_enzyme"
     )
 
-    if st.button(
-        "Delete Enzyme",
-        key="delete_restriction_enzyme"
-    ):
+    if st.button("Delete Enzyme", key="delete_enzyme_button"):
 
         if not confirm_delete:
-            st.warning("Please confirm deletion first.")
+            st.warning("Please confirm before deleting.")
 
         else:
-
-            updated_inventory = inventory.drop(
-                index=selected_delete
-            ).reset_index(drop=True)
+            updated_inventory = (
+                inventory.drop(index=delete_index)
+                .reset_index(drop=True)
+            )
 
             new_sha = save_enzymes(
                 updated_inventory,
@@ -591,4 +609,3 @@ else:
             if new_sha is not None:
                 st.success("Enzyme deleted from GitHub.")
                 st.rerun()
-
