@@ -163,6 +163,8 @@ with st.form("add_item"):
     box_name = st.radio(
         "Box Name",
         ["Antibiotics [Puromycin, Kanamycin, Carbenicillin]", "Antibiotics [Hygromycin, Tetracyclin]", "Xgal, IPTG Aliquotes [Blue/White Screening]",
+        "dNTP", "Western Blot", "DNase, Pro.K, Phosphotase, RNase, PUREExpress, Capping", "1KB+ DNA Ladder Aliquotes", "T4 Ligase, Monarch Carrier RNA", 
+        "PCR MM Aliquot, Cloning MM Aliquots"
         ],
         horizontal=True
     )
