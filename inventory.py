@@ -1,89 +1,91 @@
 import streamlit as st
 
+# ============================================================
+# PAGE CONFIGURATION
+# ============================================================
+
 st.set_page_config(
     page_title="Laboratory Inventory",
-    page_icon="🧬"
+    page_icon="🧬",
+    layout="wide"
 )
 
 # ============================================================
 # PAGE NAVIGATION
 # ============================================================
 
+home_page = st.Page(
+    "inventory.py",
+    title="Home",
+    icon="🧬",
+    default=True
+)
+
+freezer_20C_page = st.Page(
+    "pages/freezer_20C.py",
+    title="-20°C Inventory",
+    icon="❄️"
+)
+
+freezer_80C_page = st.Page(
+    "pages/freezer_80C.py",
+    title="-80°C Inventory",
+    icon="🧊"
+)
+
+restriction_enzymes_page = st.Page(
+    "pages/restriction_enzymes.py",
+    title="Restriction Enzymes",
+    icon="✂️"
+)
+
 pg = st.navigation(
     [
-        st.Page(
-            "inventory.py",
-            title="Home",
-            icon="🧬"
-        ),
-        st.Page(
-            "pages/freezer_20C.py",
-            title="20°C Inventory",
-            icon="❄️"
-        ),
-        st.Page(
-            "pages/freezer_80C.py",
-            title="-80°C Inventory",
-            icon="🧊"
-        ),
-        st.Page(
-            "pages/restriction_enzymes.py",
-            title="estriction Enzymes",
-            icon="✂️"
-        )
+        home_page,
+        freezer_20C_page,
+        freezer_80C_page,
+        restriction_enzymes_page
     ]
 )
 
 # ============================================================
-# HOME PAGE
+# HOME PAGE CONTENT
 # ============================================================
 
-if pg.title == "Home":
+if pg == home_page:
 
     st.title("🧬 Laboratory Inventory")
 
     st.write(
-        "Select the inventory you would like to open."
+        "Select an inventory from the navigation menu "
+        "on the left."
     )
 
-    # Three buttons side by side
+    st.divider()
+
+    st.subheader("Available Inventories")
+
     col1, col2, col3 = st.columns(3)
 
-    # --------------------------------------------------------
-    # -20°C FREEZER
-    # --------------------------------------------------------
-
     with col1:
-        if st.button(
-            "❄️ -20°C Inventory",
-            key="home_freezer_20C",
-            use_container_width=True
-        ):
-            st.switch_page("pages/freezer_20C.py")
-
-    # --------------------------------------------------------
-    # -80°C FREEZER
-    # --------------------------------------------------------
+        st.markdown("### ❄️ -20°C Inventory")
+        st.write(
+            "Browse and manage laboratory materials "
+            "stored in the -20°C freezer."
+        )
 
     with col2:
-        if st.button(
-            "🧊 -80°C Inventory",
-            key="home_freezer_80C",
-            use_container_width=True
-        ):
-            st.switch_page("pages/freezer_80C.py")
-
-    # --------------------------------------------------------
-    # RESTRICTION ENZYMES
-    # --------------------------------------------------------
+        st.markdown("### 🧊 -80°C Inventory")
+        st.write(
+            "Browse and manage laboratory materials "
+            "stored in the -80°C freezer."
+        )
 
     with col3:
-        if st.button(
-            "✂️ Restriction Enzymes",
-            key="home_restriction_enzymes",
-            use_container_width=True
-        ):
-            st.switch_page("pages/restriction_enzymes.py")
+        st.markdown("### ✂️ Restriction Enzymes")
+        st.write(
+            "Browse and manage the restriction enzyme inventory."
+        )
 
 # ============================================================
 # RUN SELECTED PAGE
