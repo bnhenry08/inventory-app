@@ -24,7 +24,7 @@ BOX_NAMES = [
     "DNase, Pro.K, Phosphotase, RNase, PUREExpress, Capping",
     "1KB+ DNA Ladder Aliquotes",
     "T4 Ligase, Monarch Carrier RNA",
-    "PCR MM Aliquot, Cloning MM Aliquots", 
+    "PCR MM Aliquot, Cloning MM Aliquots",
     "Restriction Enzymes"
 ]
 
@@ -465,7 +465,8 @@ if update_search:
             "DNase, Pro.K, Phosphotase, RNase, PUREExpress, Capping",
             "1KB+ DNA Ladder Aliquotes",
             "T4 Ligase, Monarch Carrier RNA",
-            "PCR MM Aliquot, Cloning MM Aliquots"
+            "PCR MM Aliquot, Cloning MM Aliquots",
+            "Restriction Enzymes"
         ]
 
         new_box_name = st.radio(
