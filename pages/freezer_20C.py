@@ -25,8 +25,7 @@ BOX_NAMES = [
     "1KB+ DNA Ladder Aliquotes",
     "T4 Ligase, Monarch Carrier RNA",
     "PCR MM Aliquot, Cloning MM Aliquots", 
-    "Restriction Enzymes",
-    "New Box"
+    "Restriction Enzymes"
 ]
 
 FREEZER_NAMES = [
