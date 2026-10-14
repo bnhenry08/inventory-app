@@ -36,7 +36,7 @@ TEMPERATURES = [
     "75°C"
 ]
 
-# Display order for buffer checkboxes
+# Buffer checkbox display order
 BUFFER_OPTIONS = [
     "rCutSmart™ Buffer",
     "NEBuffer r3.1",
@@ -159,7 +159,7 @@ def save_enzymes(df, sha):
 
 def buffer_checkboxes(prefix, selected_buffers=None):
     """
-    Display multiple selectable buffers in the specified order.
+    Display multiple buffer checkboxes in the configured order.
     Return selected buffers as a comma-separated string.
     """
 
@@ -260,6 +260,7 @@ st.caption(
 
 st.header("➕ Add Restriction Enzyme")
 
+# First row: Enzyme Name, Time Saver, Temperature
 name_col, saver_col, temp_col = st.columns([3, 1, 1])
 
 with name_col:
@@ -286,11 +287,22 @@ with temp_col:
         key="add_temperature"
     )
 
-# Buffer checkboxes below the first row
-buffer_value = buffer_checkboxes(
-    prefix="add",
-    selected_buffers=[]
-)
+# Second row: Buffers on the left, Notes on the right
+buffer_col, notes_col = st.columns([2, 1])
+
+with buffer_col:
+    buffer_value = buffer_checkboxes(
+        prefix="add",
+        selected_buffers=[]
+    )
+
+with notes_col:
+    notes = st.text_area(
+        "Notes",
+        placeholder="Enter any additional notes",
+        height=150,
+        key="add_enzyme_notes"
+    )
 
 dilute_before_use = st.radio(
     "Dilute Before Use",
@@ -298,12 +310,6 @@ dilute_before_use = st.radio(
     horizontal=True,
     index=1,
     key="add_dilute_before_use"
-)
-
-notes = st.text_area(
-    "Notes",
-    placeholder="Enter any additional notes",
-    key="add_enzyme_notes"
 )
 
 if st.button("Add Enzyme", key="add_enzyme_button"):
@@ -410,7 +416,7 @@ else:
 
     current = inventory.loc[selected_index]
 
-    # Enzyme Name, Time Saver, and Temperature on one row
+    # First row: Enzyme Name, Time Saver, Temperature
     name_col, saver_col, temp_col = st.columns([3, 1, 1])
 
     with name_col:
@@ -453,15 +459,26 @@ else:
             key=f"edit_temperature_{selected_index}"
         )
 
-    # Buffer checkboxes underneath the first row
-    current_buffers = parse_buffers(
-        current["Buffer for 100% Activity"]
-    )
+    # Second row: Buffers on the left, Notes on the right
+    buffer_col, notes_col = st.columns([2, 1])
 
-    updated_buffer_value = buffer_checkboxes(
-        prefix=f"edit_{selected_index}",
-        selected_buffers=current_buffers
-    )
+    with buffer_col:
+        current_buffers = parse_buffers(
+            current["Buffer for 100% Activity"]
+        )
+
+        updated_buffer_value = buffer_checkboxes(
+            prefix=f"edit_{selected_index}",
+            selected_buffers=current_buffers
+        )
+
+    with notes_col:
+        updated_notes = st.text_area(
+            "Notes",
+            value=str(current["Notes"]),
+            height=150,
+            key=f"edit_notes_{selected_index}"
+        )
 
     current_dilute = str(current["Dilute Before Use"])
 
@@ -477,12 +494,6 @@ else:
         index=dilute_index,
         horizontal=True,
         key=f"edit_dilute_{selected_index}"
-    )
-
-    updated_notes = st.text_area(
-        "Notes",
-        value=str(current["Notes"]),
-        key=f"edit_notes_{selected_index}"
     )
 
     if st.button(
