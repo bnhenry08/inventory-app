@@ -151,12 +151,103 @@ inventory, github_sha = load_from_github()
 
 st.title("❄️ -20°C Freezer Inventory ❄️")
 
+# -----------------------------
+# ADD ITEM TO EXISTING BOX
+# -----------------------------
+
+st.header("➕  Add Item to Existing Box ➕ ")
+
+
+with st.form("add_item"):
+
+    box_name = st.radio(
+        "Box Name",
+        ["Antibiotics [Puromycin, Kanamycin, Carbenicillin]", "Antibiotics [Hygromycin, Tetracyclin]", "Xgal, IPTG Aliquotes [Blue/White Screening]",
+        ],
+        horizontal=True
+    )
+
+    item = st.text_input(
+        "Item Name"
+    )
+
+    quantity = st.number_input(
+        "Quantity",
+        min_value=0,
+        step=1
+    )
+
+    freezer_name = st.radio(
+        "Freezer Name",
+        ["Pig 150", "Rabbit 150", "Frog 144", "Lobster 144"],
+        horizontal=True
+    )
+
+    rack_number = st.radio(
+        "Rack Number",
+        ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
+        horizontal=True
+    )
+
+    box_number = st.radio(
+        "Box Number",
+        ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+        horizontal=True
+    )
+
+    notes = st.text_area(
+        "Box Notes",
+        placeholder="Enter notes for this box..."
+    )
+
+
+    submitted = st.form_submit_button(
+        "Add"
+    )
+
+
+    if submitted and item:
+
+        new_row = pd.DataFrame(
+            [[
+                box_name,
+                item,
+                quantity,
+                freezer_name,
+                rack_number,
+                box_number,
+                notes
+            ]],
+            columns=COLUMNS
+        )
+
+
+        inventory = pd.concat(
+            [
+                inventory,
+                new_row
+            ],
+            ignore_index=True
+        )
+
+
+        github_sha = save_to_github(
+            inventory,
+            github_sha
+        )
+
+
+        st.success(
+            f"{item} added and saved to GitHub"
+        )
+
+        st.rerun()
 
 # -----------------------------
-# ADD ITEM
+# ADD NEW BOX
 # -----------------------------
 
-st.header("➕  Add Item ➕ ")
+st.header("➕  New Box ➕ ")
 
 
 with st.form("add_item"):
