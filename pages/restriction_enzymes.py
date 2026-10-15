@@ -327,13 +327,13 @@ if st.button("Add Enzyme", key="add_enzyme_button"):
         new_row = pd.DataFrame(
             [[
                 enzyme_name.strip(),
+                temperature,
+                buffer_value,
+                time_saver,
+                dilute_before_use,
                 FREEZER_NAME,
                 RACK_NUMBER,
                 BOX_NUMBER,
-                time_saver,
-                temperature,
-                buffer_value,
-                dilute_before_use,
                 notes.strip()
             ]],
             columns=ENZYME_COLUMNS
