@@ -29,3 +29,4 @@ MluI-HF,37°C,"rCutSmart™ Buffer, NEBuffer r3.1, NEBuffer r2.1",Y,Y,Pig 150,11
 MscI,37°C,"rCutSmart™ Buffer, NEBuffer r3.1, NEBuffer r2.1",N,N,Pig 150,11,1,Use 2ul
 NdeI,37°C,"rCutSmart™ Buffer, NEBuffer r3.1, NEBuffer r2.1",Y,Y,Pig 150,11,1,
 NheI-HF,37°C,"rCutSmart™ Buffer, NEBuffer r2.1",Y,Y,Pig 150,11,1,
+NotI,37°C,NEBuffer r3.1,Y,N,Pig 150,11,1,
