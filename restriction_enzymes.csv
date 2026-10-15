@@ -1,7 +1,7 @@
-Enzyme Name,Freezer Name,Rack Number,Box Number,Time Saver,Temperature,Buffer for 100% Activity,Dilute Before Use,Notes
-AccI,Pig 150,11,1,Y,37°C,rCutSmart™ Buffer,N,
-Acc65I,Pig 150,11,1,Y,37°C,NEBuffer r3.1,N,
-AfeI,Pig 150,11,1,N,37°C,"rCutSmart™ Buffer, NEBuffer r2.1",N,
-AflII,Pig 150,11,1,Y,37°C,"rCutSmart™ Buffer, NEBuffer r2.1",N,
-AleI-v2,Pig 150,11,1,N,37°C,rCutSmart™ Buffer,N,
-AgeI-HF,Pig 150,11,1,Y,37°C,"rCutSmart™ Buffer, NEBuffer r1.1",Y,
+Enzyme Name,Temperature,Buffer for 100% Activity,Time Saver,Dilute Before Use,Freezer Name,Rack Number,Box Number,Notes
+AccI,37°C,rCutSmart™ Buffer,Y,N,Pig 150,11,1,
+Acc65I,37°C,NEBuffer r3.1,Y,N,Pig 150,11,1,
+AfeI,37°C,"rCutSmart™ Buffer, NEBuffer r2.1",N,N,Pig 150,11,1,
+AflII,37°C,"rCutSmart™ Buffer, NEBuffer r2.1",Y,Y,Pig 150,11,1,
+AleI-v2,37°C,rCutSmart™ Buffer,N,N,Pig 150,11,1,
+AgeI-HF,37°C,"rCutSmart™ Buffer, NEBuffer r1.1",Y,Y,Pig 150,11,1,
