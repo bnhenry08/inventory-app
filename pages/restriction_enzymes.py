@@ -1,4 +1,3 @@
-import streamlit as st
 import pandas as pd
 import requests
 import base64
@@ -10,13 +9,13 @@ from io import StringIO
 
 ENZYME_COLUMNS = [
     "Enzyme Name",
+    "Temperature",
+    "Buffer for 100% Activity",
+    "Time Saver",
+    "Dilute Before Use",
     "Freezer Name",
     "Rack Number",
     "Box Number",
-    "Time Saver",
-    "Temperature",
-    "Buffer for 100% Activity",
-    "Dilute Before Use",
     "Notes"
 ]
 
