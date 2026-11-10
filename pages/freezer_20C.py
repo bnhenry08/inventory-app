@@ -307,109 +307,6 @@ if section == "Add":
     st.header("➕ Add Inventory")
 
     # --------------------------------
-    # ADD ITEM TO EXISTING BOX
-    # --------------------------------
-
-    st.subheader("Add Item to Existing Box")
-
-    with st.form("add_existing_box_form"):
-
-        box_name = st.radio(
-            "Box Name",
-            BOX_NAMES,
-            horizontal=True,
-            key="existing_box_name"
-        )
-
-        freezer_name = st.radio(
-            "Freezer Name",
-            FREEZER_NAMES,
-            horizontal=True,
-            key="existing_freezer_name"
-        )
-
-        rack_number = st.radio(
-            "Rack Number",
-            RACK_NUMBERS,
-            horizontal=True,
-            key="existing_rack_number"
-        )
-
-        box_number = st.radio(
-            "Box Number",
-            BOX_NUMBERS,
-            horizontal=True,
-            key="existing_box_number"
-        )
-
-        item_col, quantity_col = st.columns([3, 1])
-
-        with item_col:
-            item = st.text_input(
-                "Item Name",
-                placeholder="Enter item name",
-                key="existing_item_name"
-            )
-
-        with quantity_col:
-            quantity = st.number_input(
-                "Quantity",
-                min_value=0,
-                step=1,
-                key="existing_quantity"
-            )
-
-        notes = st.text_area(
-            "Box Notes",
-            placeholder="Enter notes for this box...",
-            height=80,
-            key="existing_box_notes"
-        )
-
-        existing_submitted = st.form_submit_button(
-            "Add Item",
-            use_container_width=True
-        )
-
-        if existing_submitted:
-
-            if not item.strip():
-                st.error("Please enter an item name.")
-
-            else:
-
-                new_row = pd.DataFrame(
-                    [[
-                        box_name,
-                        item.strip(),
-                        quantity,
-                        freezer_name,
-                        rack_number,
-                        box_number,
-                        notes
-                    ]],
-                    columns=COLUMNS
-                )
-
-                updated_inventory = pd.concat(
-                    [inventory, new_row],
-                    ignore_index=True
-                )
-
-                new_sha = save_to_github(
-                    updated_inventory,
-                    github_sha
-                )
-
-                if new_sha is not None:
-                    st.success(
-                        f"{item.strip()} added successfully!"
-                    )
-                    st.rerun()
-
-    st.divider()
-
-    # --------------------------------
     # CREATE A NEW BOX
     # --------------------------------
 
@@ -510,6 +407,109 @@ if section == "Add":
                     st.success(
                         f"New box '{new_box_name.strip()}' "
                         f"and item '{new_item.strip()}' saved!"
+                    )
+                    st.rerun()
+
+    st.divider()
+
+    # --------------------------------
+    # ADD ITEM TO EXISTING BOX
+    # --------------------------------
+
+    st.subheader("Add Item to Existing Box")
+
+    with st.form("add_existing_box_form"):
+
+        box_name = st.radio(
+            "Box Name",
+            BOX_NAMES,
+            horizontal=True,
+            key="existing_box_name"
+        )
+
+        freezer_name = st.radio(
+            "Freezer Name",
+            FREEZER_NAMES,
+            horizontal=True,
+            key="existing_freezer_name"
+        )
+
+        rack_number = st.radio(
+            "Rack Number",
+            RACK_NUMBERS,
+            horizontal=True,
+            key="existing_rack_number"
+        )
+
+        box_number = st.radio(
+            "Box Number",
+            BOX_NUMBERS,
+            horizontal=True,
+            key="existing_box_number"
+        )
+
+        item_col, quantity_col = st.columns([3, 1])
+
+        with item_col:
+            item = st.text_input(
+                "Item Name",
+                placeholder="Enter item name",
+                key="existing_item_name"
+            )
+
+        with quantity_col:
+            quantity = st.number_input(
+                "Quantity",
+                min_value=0,
+                step=1,
+                key="existing_quantity"
+            )
+
+        notes = st.text_area(
+            "Box Notes",
+            placeholder="Enter notes for this box...",
+            height=80,
+            key="existing_box_notes"
+        )
+
+        existing_submitted = st.form_submit_button(
+            "Add Item",
+            use_container_width=True
+        )
+
+        if existing_submitted:
+
+            if not item.strip():
+                st.error("Please enter an item name.")
+
+            else:
+
+                new_row = pd.DataFrame(
+                    [[
+                        box_name,
+                        item.strip(),
+                        quantity,
+                        freezer_name,
+                        rack_number,
+                        box_number,
+                        notes
+                    ]],
+                    columns=COLUMNS
+                )
+
+                updated_inventory = pd.concat(
+                    [inventory, new_row],
+                    ignore_index=True
+                )
+
+                new_sha = save_to_github(
+                    updated_inventory,
+                    github_sha
+                )
+
+                if new_sha is not None:
+                    st.success(
+                        f"{item.strip()} added successfully!"
                     )
                     st.rerun()
 
