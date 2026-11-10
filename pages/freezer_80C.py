@@ -9,7 +9,7 @@ from io import StringIO
 # CONFIGURATION
 # -----------------------------
 
-GITHUB_FILE = "inventory_-80C.csv"
+GITHUB_FILE = "-80C_inventory.csv"
 
 COLUMNS = [
     "Box Name",
@@ -493,7 +493,7 @@ csv = inventory.to_csv(index=False)
 st.download_button(
     "Download CSV",
     data=csv,
-    file_name="inventory_-80C.csv",
+    file_name="-80C_inventory.csv",
     mime="text/csv",
     key="download_inventory",
     use_container_width=True
