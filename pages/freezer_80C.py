@@ -1,9 +1,10 @@
-
 import streamlit as st
 import pandas as pd
 import requests
 import base64
 from io import StringIO
+
+GITHUB_FILE = "inventory_-80C.csv"
 
 COLUMNS = [
     "Box Name",
@@ -35,8 +36,8 @@ FREEZER_NAMES = [
     "Lobster 144"
 ]
 
-RACK_NUMBERS = [str(i) for i in range(1, 13)]
-BOX_NUMBERS = [str(i) for i in range(1, 10)]
+RACK_NUMBERS = [str(i) for i in range(1, 24)]
+BOX_NUMBERS = [str(i) for i in range(1, 26)]
 
 
 # -----------------------------
@@ -54,7 +55,7 @@ def github_url():
     return (
         f"https://api.github.com/repos/"
         f"{st.secrets['github_repo']}/contents/"
-        f"{st.secrets['github_file']}"
+        f"{GITHUB_FILE}"
     )
 
 
@@ -121,7 +122,7 @@ def save_to_github(df, sha):
         return response.json()["content"]["sha"]
 
     st.error(f"GitHub update failed: {response.text}")
-    return sha
+    return None
 
 
 # -----------------------------
@@ -159,120 +160,14 @@ if not st.session_state.auth:
 
 inventory, github_sha = load_from_github()
 
-st.title("❄️ -20°C Freezer Inventory ❄️")
-
-
-# -----------------------------
-# ADD ITEM TO EXISTING BOX
-# -----------------------------
-
-st.header("➕ Add Item to Existing Box")
-
-with st.form("add_existing_box_form"):
-
-    # 1. Box Name
-    box_name = st.radio(
-        "Box Name",
-        BOX_NAMES,
-        horizontal=True,
-        key="existing_box_name"
-    )
-
-    # 2. Freezer Name
-    freezer_name = st.radio(
-        "Freezer Name",
-        FREEZER_NAMES,
-        horizontal=True,
-        key="existing_freezer_name"
-    )
-
-    # 3. Rack Number
-    rack_number = st.radio(
-        "Rack Number",
-        RACK_NUMBERS,
-        horizontal=True,
-        key="existing_rack_number"
-    )
-
-    # 4. Box Number
-    box_number = st.radio(
-        "Box Number",
-        BOX_NUMBERS,
-        horizontal=True,
-        key="existing_box_number"
-    )
-
-    # 5. Item Name and Quantity on the same row
-    item_col, quantity_col = st.columns([3, 1])
-
-    with item_col:
-        item = st.text_input(
-            "Item Name",
-            placeholder="Enter item name",
-            key="existing_item_name"
-        )
-
-    with quantity_col:
-        quantity = st.number_input(
-            "Quantity",
-            min_value=0,
-            step=1,
-            key="existing_quantity"
-        )
-
-    # 6. Notes
-    notes = st.text_area(
-        "Box Notes",
-        placeholder="Enter notes for this box...",
-        height=80,
-        key="existing_box_notes"
-    )
-
-    existing_submitted = st.form_submit_button("Add")
-
-    if existing_submitted:
-
-        if not item.strip():
-            st.error("Please enter an item name.")
-
-        else:
-            new_row = pd.DataFrame(
-                [[
-                    box_name,
-                    item.strip(),
-                    quantity,
-                    freezer_name,
-                    rack_number,
-                    box_number,
-                    notes
-                ]],
-                columns=COLUMNS
-            )
-
-            updated_inventory = pd.concat(
-                [inventory, new_row],
-                ignore_index=True
-            )
-
-            new_sha = save_to_github(
-                updated_inventory,
-                github_sha
-            )
-
-            if new_sha != github_sha or github_sha is not None:
-                inventory = updated_inventory
-                github_sha = new_sha
-                st.success(
-                    f"{item.strip()} added and saved to GitHub."
-                )
-                st.rerun()
+st.title("🧊 -80°C Freezer Inventory 🧊")
 
 
 # -----------------------------
 # ADD NEW BOX
 # -----------------------------
 
-st.header("➕ New Box")
+st.header("New Box")
 
 with st.form("add_new_box_form"):
 
@@ -367,7 +262,7 @@ with st.form("add_new_box_form"):
                 github_sha
             )
 
-            if new_sha != github_sha or github_sha is not None:
+            if new_sha is not None:
                 inventory = updated_inventory
                 github_sha = new_sha
                 st.success(
@@ -381,7 +276,7 @@ with st.form("add_new_box_form"):
 # SEARCH
 # -----------------------------
 
-st.header("🔍 Search")
+st.header("Search")
 
 search = st.text_input("Search items", key="inventory_search")
 
@@ -410,7 +305,7 @@ st.dataframe(
 # UPDATE ITEM INFORMATION
 # -----------------------------
 
-st.header("✏️ Update Item Information")
+st.header("Update Item Information")
 
 update_search = st.text_input(
     "Search item to update",
@@ -455,29 +350,10 @@ if update_search:
         index = matches.loc[selected, "index"]
         current = inventory.loc[index]
 
-        # Box Name options
-        box_name_options = [
-            "Antibiotics [Puromycin, Kanamycin, Carbenicillin]",
-            "Antibiotics [Hygromycin, Tetracyclin]",
-            "Xgal, IPTG Aliquotes [Blue/White Screening]",
-            "dNTP",
-            "Western Blot",
-            "DNase, Pro.K, Phosphotase, RNase, PUREExpress, Capping",
-            "1KB+ DNA Ladder Aliquotes",
-            "T4 Ligase, Monarch Carrier RNA",
-            "PCR MM Aliquot, Cloning MM Aliquots",
-            "Restriction Enzymes"
-        ]
-
-        new_box_name = st.radio(
+        # Box Name - allow editing to any text value
+        new_box_name = st.text_input(
             "Box Name",
-            box_name_options,
-            index=(
-                box_name_options.index(current["Box Name"])
-                if current["Box Name"] in box_name_options
-                else 0
-            ),
-            horizontal=True,
+            value=str(current["Box Name"]),
             key="update_box_name"
         )
 
@@ -550,8 +426,6 @@ if update_search:
 
         if st.button("Save Updates"):
 
-            old_box_name = current["Box Name"]
-
             inventory.loc[index, "Box Name"] = new_box_name
             inventory.loc[index, "Quantity"] = new_quantity
             inventory.loc[index, "Freezer Name"] = new_freezer
@@ -560,10 +434,10 @@ if update_search:
 
             # Update notes for all items in the same box.
             same_box = (
-            (inventory["Box Name"] == current["Box Name"]) &
-            (inventory["Freezer Name"] == new_freezer) &
-            (inventory["Rack Number"] == str(new_rack)) &
-            (inventory["Box Number"] == str(new_box))
+                (inventory["Box Name"] == new_box_name) &
+                (inventory["Freezer Name"] == new_freezer) &
+                (inventory["Rack Number"] == str(new_rack)) &
+                (inventory["Box Number"] == str(new_box))
             )
 
             inventory.loc[same_box, "Notes"] = str(new_notes)
@@ -573,7 +447,7 @@ if update_search:
                 github_sha
             )
 
-            if new_sha != github_sha or github_sha is not None:
+            if new_sha is not None:
                 github_sha = new_sha
                 st.success(
                     "Item information updated and saved to GitHub."
@@ -585,14 +459,14 @@ if update_search:
 # DOWNLOAD
 # -----------------------------
 
-st.header("⬇️ Download Inventory")
+st.header("Download Inventory")
 
 csv = inventory.to_csv(index=False)
 
 st.download_button(
     "Download CSV",
     csv,
-    "inventory.csv",
+    "inventory_-80C.csv",
     "text/csv",
     key="download_inventory"
 )
@@ -602,7 +476,7 @@ st.download_button(
 # DELETE ITEM
 # -----------------------------
 
-st.header("❌ Delete Item")
+st.header("Delete Item")
 
 delete_search = st.text_input(
     "Search item to delete",
@@ -659,7 +533,7 @@ if delete_search:
                 github_sha
             )
 
-            if new_sha != github_sha or github_sha is not None:
+            if new_sha is not None:
                 inventory = updated_inventory
                 github_sha = new_sha
                 st.success("Item deleted and saved to GitHub.")

@@ -120,7 +120,7 @@ def save_to_github(df, sha):
         return response.json()["content"]["sha"]
 
     st.error(f"GitHub update failed: {response.text}")
-    return sha
+    return None
 
 
 # -----------------------------
@@ -165,7 +165,7 @@ st.title("❄️ -20°C Freezer Inventory ❄️")
 # ADD ITEM TO EXISTING BOX
 # -----------------------------
 
-st.header("➕ Add Item to Existing Box")
+st.header("Add Item to Existing Box")
 
 with st.form("add_existing_box_form"):
 
@@ -258,7 +258,7 @@ with st.form("add_existing_box_form"):
                 github_sha
             )
 
-            if new_sha != github_sha or github_sha is not None:
+            if new_sha is not None:
                 inventory = updated_inventory
                 github_sha = new_sha
                 st.success(
@@ -271,7 +271,7 @@ with st.form("add_existing_box_form"):
 # ADD NEW BOX
 # -----------------------------
 
-st.header("➕ New Box")
+st.header("New Box")
 
 with st.form("add_new_box_form"):
 
@@ -366,7 +366,7 @@ with st.form("add_new_box_form"):
                 github_sha
             )
 
-            if new_sha != github_sha or github_sha is not None:
+            if new_sha is not None:
                 inventory = updated_inventory
                 github_sha = new_sha
                 st.success(
@@ -380,7 +380,7 @@ with st.form("add_new_box_form"):
 # SEARCH
 # -----------------------------
 
-st.header("🔍 Search All Inventories")
+st.header("Search All Inventories")
 
 search = st.text_input("Search items", key="inventory_search")
 
@@ -409,7 +409,7 @@ st.dataframe(
 # UPDATE ITEM INFORMATION
 # -----------------------------
 
-st.header("✏️ Update Item Information")
+st.header("Update Item Information")
 
 update_search = st.text_input(
     "Search item to update",
@@ -549,8 +549,6 @@ if update_search:
 
         if st.button("Save Updates"):
 
-            old_box_name = current["Box Name"]
-
             inventory.loc[index, "Box Name"] = new_box_name
             inventory.loc[index, "Quantity"] = new_quantity
             inventory.loc[index, "Freezer Name"] = new_freezer
@@ -559,10 +557,10 @@ if update_search:
 
             # Update notes for all items in the same box.
             same_box = (
-            (inventory["Box Name"] == current["Box Name"]) &
-            (inventory["Freezer Name"] == new_freezer) &
-            (inventory["Rack Number"] == str(new_rack)) &
-            (inventory["Box Number"] == str(new_box))
+                (inventory["Box Name"] == new_box_name) &
+                (inventory["Freezer Name"] == new_freezer) &
+                (inventory["Rack Number"] == str(new_rack)) &
+                (inventory["Box Number"] == str(new_box))
             )
 
             inventory.loc[same_box, "Notes"] = str(new_notes)
@@ -572,7 +570,7 @@ if update_search:
                 github_sha
             )
 
-            if new_sha != github_sha or github_sha is not None:
+            if new_sha is not None:
                 github_sha = new_sha
                 st.success(
                     "Item information updated and saved to GitHub."
@@ -584,7 +582,7 @@ if update_search:
 # DOWNLOAD
 # -----------------------------
 
-st.header("⬇️ Download Inventory")
+st.header("Download Inventory")
 
 csv = inventory.to_csv(index=False)
 
@@ -601,7 +599,7 @@ st.download_button(
 # DELETE ITEM
 # -----------------------------
 
-st.header("❌ Delete Item")
+st.header("Delete Item")
 
 delete_search = st.text_input(
     "Search item to delete",
@@ -658,7 +656,7 @@ if delete_search:
                 github_sha
             )
 
-            if new_sha != github_sha or github_sha is not None:
+            if new_sha is not None:
                 inventory = updated_inventory
                 github_sha = new_sha
                 st.success("Item deleted and saved to GitHub.")
