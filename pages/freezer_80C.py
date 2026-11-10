@@ -1,3 +1,4 @@
+
 import streamlit as st
 import pandas as pd
 import requests
@@ -164,115 +165,7 @@ st.title("🧊 -80°C Freezer Inventory 🧊")
 
 
 # -----------------------------
-# ADD ITEM TO EXISTING BOX
-# -----------------------------
-
-st.header("Add Item to Existing Box")
-
-with st.form("add_existing_box_form"):
-
-    # 1. Box Name - type any box name
-    box_name = st.text_input(
-        "Box Name",
-        placeholder="Type box name",
-        key="existing_box_name"
-    )
-
-    # 2. Freezer Name
-    freezer_name = st.radio(
-        "Freezer Name",
-        FREEZER_NAMES,
-        horizontal=True,
-        key="existing_freezer_name"
-    )
-
-    # 3. Rack Number
-    rack_number = st.radio(
-        "Rack Number",
-        RACK_NUMBERS,
-        horizontal=True,
-        key="existing_rack_number"
-    )
-
-    # 4. Box Number
-    box_number = st.radio(
-        "Box Number",
-        BOX_NUMBERS,
-        horizontal=True,
-        key="existing_box_number"
-    )
-
-    # 5. Item Name and Quantity on the same row
-    item_col, quantity_col = st.columns([3, 1])
-
-    with item_col:
-        item = st.text_input(
-            "Item Name",
-            placeholder="Enter item name",
-            key="existing_item_name"
-        )
-
-    with quantity_col:
-        quantity = st.number_input(
-            "Quantity",
-            min_value=0,
-            step=1,
-            key="existing_quantity"
-        )
-
-    # 6. Notes
-    notes = st.text_area(
-        "Box Notes",
-        placeholder="Enter notes for this box...",
-        height=80,
-        key="existing_box_notes"
-    )
-
-    existing_submitted = st.form_submit_button("Add")
-
-    if existing_submitted:
-
-        if not box_name.strip():
-            st.error("Please enter a box name.")
-
-        elif not item.strip():
-            st.error("Please enter an item name.")
-
-        else:
-            new_row = pd.DataFrame(
-                [[
-                    box_name,
-                    item.strip(),
-                    quantity,
-                    freezer_name,
-                    rack_number,
-                    box_number,
-                    notes
-                ]],
-                columns=COLUMNS
-            )
-
-            updated_inventory = pd.concat(
-                [inventory, new_row],
-                ignore_index=True
-            )
-
-            new_sha = save_to_github(
-                updated_inventory,
-                github_sha
-            )
-
-            if new_sha != github_sha or github_sha is not None:
-                inventory = updated_inventory
-                github_sha = new_sha
-                st.success(
-                    f"{item.strip()} added and saved to GitHub."
-                )
-                st.rerun()
-
-
-# -----------------------------
-# ADD NEW BOX
+# NEW BOX
 # -----------------------------
 
 st.header("New Box")
@@ -458,7 +351,7 @@ if update_search:
         index = matches.loc[selected, "index"]
         current = inventory.loc[index]
 
-        # Box Name - allow editing to any text value
+        # Box Name
         new_box_name = st.text_input(
             "Box Name",
             value=str(current["Box Name"]),
@@ -534,8 +427,6 @@ if update_search:
 
         if st.button("Save Updates"):
 
-            old_box_name = current["Box Name"]
-
             inventory.loc[index, "Box Name"] = new_box_name
             inventory.loc[index, "Quantity"] = new_quantity
             inventory.loc[index, "Freezer Name"] = new_freezer
@@ -544,10 +435,10 @@ if update_search:
 
             # Update notes for all items in the same box.
             same_box = (
-            (inventory["Box Name"] == current["Box Name"]) &
-            (inventory["Freezer Name"] == new_freezer) &
-            (inventory["Rack Number"] == str(new_rack)) &
-            (inventory["Box Number"] == str(new_box))
+                (inventory["Box Name"] == current["Box Name"]) &
+                (inventory["Freezer Name"] == new_freezer) &
+                (inventory["Rack Number"] == str(new_rack)) &
+                (inventory["Box Number"] == str(new_box))
             )
 
             inventory.loc[same_box, "Notes"] = str(new_notes)
