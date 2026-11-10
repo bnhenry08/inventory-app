@@ -569,7 +569,7 @@ if update_search:
 # DOWNLOAD
 # -----------------------------
 
-st.header("ownload Inventory")
+st.header("Download Inventory")
 
 csv = inventory.to_csv(index=False)
 
