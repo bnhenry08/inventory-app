@@ -260,7 +260,7 @@ st.caption(
 # ADD ENZYME
 # -----------------------------
 
-st.header("➕ Add Restriction Enzyme")
+st.header("Add Restriction Enzyme")
 
 # TOP ROW: Enzyme Name | Dilute Before Use | Time Saver
 name_col, dilute_col, saver_col = st.columns([3, 1, 1])
@@ -361,7 +361,7 @@ if st.button("Add Enzyme", key="add_enzyme_button"):
 # -----------------------------
 
 st.divider()
-st.header("🔍 Search and View Enzymes")
+st.header("Search and View Enzymes")
 
 search = st.text_input(
     "Search enzymes",
@@ -395,7 +395,7 @@ st.dataframe(
 # -----------------------------
 
 st.divider()
-st.header("✏️ Update Enzyme Information")
+st.header("pdate Enzyme Information")
 
 if inventory.empty:
     st.info("No enzymes have been added yet.")
@@ -555,7 +555,7 @@ else:
 # -----------------------------
 
 st.divider()
-st.header("⬇️ Download Restriction Enzyme Inventory")
+st.header("ownload Restriction Enzyme Inventory")
 
 csv_content = inventory.to_csv(index=False)
 
@@ -573,7 +573,7 @@ st.download_button(
 # -----------------------------
 
 st.divider()
-st.header("❌ Delete Enzyme")
+st.header("Delete Enzyme (Note: This is final)")
 
 if inventory.empty:
     st.info("There are no enzymes to delete.")
