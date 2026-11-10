@@ -14,24 +14,9 @@ COLUMNS = [
     "Notes"
 ]
 
-BOX_NAMES = [
-    "Antibiotics [Puromycin, Kanamycin, Carbenicillin]",
-    "Antibiotics [Hygromycin, Tetracyclin]",
-    "Xgal, IPTG Aliquotes [Blue/White Screening]",
-    "dNTP",
-    "Western Blot",
-    "DNase, Pro.K, Phosphotase, RNase, PUREExpress, Capping",
-    "1KB+ DNA Ladder Aliquotes",
-    "T4 Ligase, Monarch Carrier RNA",
-    "PCR MM Aliquot, Cloning MM Aliquots",
-    "Restriction Enzymes"
-]
-
 FREEZER_NAMES = [
-    "Pig 150",
-    "Rabbit 150",
-    "Frog 144",
-    "Lobster 144"
+    "Freezer Farm",
+    "150"
 ]
 
 RACK_NUMBERS = [str(i) for i in range(1, 13)]
