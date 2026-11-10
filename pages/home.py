@@ -10,96 +10,81 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    /* Make inventory tiles larger */
+    .home-title {
+        text-align: center;
+        font-size: 38px;
+        font-weight: 800;
+        margin-bottom: 25px;
+    }
+
     div[data-testid="stPageLink"] a {
-        min-height: 150px;
+        min-height: 155px;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
+        gap: 12px;
         border-radius: 18px;
-        font-size: 25px !important;
+        font-size: 21px !important;
         font-weight: 700;
-        padding: 20px;
-    }
-
-    /* Increase the icon size */
-    div[data-testid="stPageLink"] a span {
-        font-size: 45px !important;
-    }
-
-    /* Make the page title larger */
-    h1 {
-        font-size: 42px !important;
         text-align: center;
-        padding-bottom: 20px;
+        padding: 15px;
     }
 
-    /* Add space between rows */
-    div[data-testid="stHorizontalBlock"] {
-        gap: 20px;
+    div[data-testid="stPageLink"] a span {
+        font-size: 48px !important;
     }
+
+    div[data-testid="stHorizontalBlock"] {
+        gap: 16px;
+    }
+
     </style>
     """,
     unsafe_allow_html=True
 )
 
-st.title("🧬 Lab Inventory")
+st.markdown(
+    '<div class="home-title">🧬 Lab Inventory</div>',
+    unsafe_allow_html=True
+)
 
-st.write("")
-
-col1, col2 = st.columns(2, gap="large")
+# First row
+col1, col2 = st.columns(2, gap="medium")
 
 with col1:
-    with st.container(border=True):
-        st.page_link(
-            "pages/freezer_20C.py",
-            label="-20°C Freezer",
-            icon="❄️",
-            use_container_width=True
-        )
+    st.page_link(
+        "pages/freezer_20C.py",
+        label="-20°C Freezer",
+        icon="❄️",
+        use_container_width=True
+    )
 
 with col2:
-    with st.container(border=True):
-        st.page_link(
-            "pages/freezer_80C.py",
-            label="-80°C Freezer",
-            icon="🧊",
-            use_container_width=True
-        )
+    st.page_link(
+        "pages/freezer_80C.py",
+        label="-80°C Freezer",
+        icon="🧊",
+        use_container_width=True
+    )
 
 st.write("")
 
-col3, col4 = st.columns(2, gap="large")
+# Second row
+col3, col4 = st.columns(2, gap="medium")
 
 with col3:
-    with st.container(border=True):
-        st.page_link(
-            "pages/restriction_enzymes.py",
-            label="Restriction Enzymes",
-            icon="🧬",
-            use_container_width=True
-        )
+    st.page_link(
+        "pages/restriction_enzymes.py",
+        label="Restriction Enzymes",
+        icon="🧬",
+        use_container_width=True
+    )
 
 with col4:
-    with st.container(border=True):
-        st.markdown(
-            """
-            <div style="
-                text-align:center;
-                padding:25px 5px;
-                min-height:150px;
-            ">
-                <div style="font-size:60px;">🔬</div>
-                <div style="
-                    font-size:24px;
-                    font-weight:700;
-                ">
-                    Lab Inventory
-                </div>
-                <div style="font-size:15px; opacity:0.65;">
-                    Storage & Organization
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+    st.page_link(
+        "inventory.py",
+        label="Home",
+        icon="🏠",
+        use_container_width=True
+    )
