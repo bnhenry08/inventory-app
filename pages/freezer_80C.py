@@ -19,8 +19,8 @@ FREEZER_NAMES = [
     "150"
 ]
 
-RACK_NUMBERS = [str(i) for i in range(1, 24)]
-BOX_NUMBERS = [str(i) for i in range(1, 24)]
+RACK_NUMBERS = [str(i) for i in range(1, 25)]
+BOX_NUMBERS = [str(i) for i in range(1, 25)]
 
 
 # -----------------------------
