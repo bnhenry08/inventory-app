@@ -409,7 +409,7 @@ st.dataframe(
 # UPDATE ITEM INFORMATION
 # -----------------------------
 
-st.header("pdate Item Information")
+st.header("Update Item Information")
 
 update_search = st.text_input(
     "Search item to update",
@@ -584,7 +584,7 @@ if update_search:
 # DOWNLOAD
 # -----------------------------
 
-st.header("ownload Inventory")
+st.header("Download Inventory")
 
 csv = inventory.to_csv(index=False)
 
@@ -601,7 +601,7 @@ st.download_button(
 # DELETE ITEM
 # -----------------------------
 
-st.header("❌ Delete Item")
+st.header("Delete Item")
 
 delete_search = st.text_input(
     "Search item to delete",
