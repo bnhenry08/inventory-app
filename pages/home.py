@@ -1,40 +1,69 @@
+
 import streamlit as st
 
-st.title("🧬 Laboratory Inventory")
-st.write("Select an inventory to get started.")
-st.divider()
+st.title("🧬 Lab Inventory")
 
-col1, col2, col3 = st.columns(3)
+st.markdown(
+    """
+    <style>
+    div[data-testid="stPageLink"] a {
+        min-height: 115px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 16px;
+        font-size: 20px;
+        font-weight: 600;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+st.write("")
+
+col1, col2 = st.columns(2, gap="medium")
 
 with col1:
-    st.subheader("❄️ -20°C Inventory")
-    st.write("Browse and manage materials stored in the -20°C freezer.")
-    st.page_link(
-        "pages/freezer_20C.py",
-        label="Open -20°C Inventory",
-        icon="❄️",
-        use_container_width=True
-    )
+    with st.container(border=True):
+        st.page_link(
+            "pages/freezer_20C.py",
+            label="-20°C Freezer",
+            icon="❄️",
+            use_container_width=True
+        )
 
 with col2:
-    st.subheader("🧊 -80°C Inventory")
-    st.write("Browse and manage materials stored in the -80°C freezer.")
-    st.page_link(
-        "pages/freezer_80C.py",
-        label="Open -80°C Inventory",
-        icon="🧊",
-        use_container_width=True
-    )
+    with st.container(border=True):
+        st.page_link(
+            "pages/freezer_80C.py",
+            label="-80°C Freezer",
+            icon="🧊",
+            use_container_width=True
+        )
+
+col3, col4 = st.columns(2, gap="medium")
 
 with col3:
-    st.subheader("✂️ Restriction Enzymes")
-    st.write("Browse and manage the restriction enzyme inventory.")
-    st.page_link(
-        "pages/restriction_enzymes.py",
-        label="Open Restriction Enzymes",
-        icon="✂️",
-        use_container_width=True
-    )
+    with st.container(border=True):
+        st.page_link(
+            "pages/restriction_enzymes.py",
+            label="Restriction Enzymes",
+            icon="🧬",
+            use_container_width=True
+        )
 
-st.divider()
-st.caption("Tip: On your phone, use your browser menu and choose Add to Home Screen to create an app-like shortcut.")
+with col4:
+    with st.container(border=True):
+        st.markdown(
+            """
+            <div style="text-align:center; padding:20px 5px;">
+                <div style="font-size:36px;">🔬</div>
+                <div style="font-weight:600;">Lab Inventory</div>
+                <div style="font-size:12px; opacity:0.65;">
+                    Storage & Organization
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
