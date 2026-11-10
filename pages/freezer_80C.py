@@ -51,7 +51,6 @@ BOX_NUMBERS = [str(i) for i in range(1, 25)]
 st.markdown(
     """
     <style>
-    /* Main menu buttons */
     div[data-testid="stButton"] button {
         min-height: 145px;
         width: 100%;
@@ -62,7 +61,6 @@ st.markdown(
         line-height: 1.8;
     }
 
-    /* Mobile menu buttons */
     @media (max-width: 640px) {
         div[data-testid="stButton"] button {
             min-height: 125px;
@@ -71,7 +69,6 @@ st.markdown(
         }
     }
 
-    /* Back button */
     div[data-testid="stButton"]:has(button[kind="secondary"]) button {
         min-height: 48px;
         font-size: 16px;
@@ -217,9 +214,6 @@ st.title("🧊 -80°C Freezer Inventory")
 # MENU NAVIGATION
 # ============================================================
 
-# Use a unique session-state key so this page does not
-# interfere with the -20°C freezer page.
-
 if "freezer80_section" not in st.session_state:
     st.session_state.freezer80_section = "Menu"
 
@@ -308,6 +302,10 @@ else:
 if section == "Add":
 
     st.header("➕ Add Inventory")
+
+    # --------------------------------------------------------
+    # CREATE A NEW BOX
+    # --------------------------------------------------------
 
     st.subheader("Create a New Box")
 
@@ -410,6 +408,161 @@ if section == "Add":
                     )
 
                     st.rerun()
+
+    # --------------------------------------------------------
+    # ADD ITEM TO AN EXISTING BOX
+    # --------------------------------------------------------
+
+    st.divider()
+    st.subheader("Add Item to Existing Box")
+
+    if inventory.empty:
+
+        st.info(
+            "There are no existing boxes yet. "
+            "Create a new box above first."
+        )
+
+    else:
+
+        # Get each unique box and its location.
+        existing_boxes = (
+            inventory[
+                [
+                    "Box Name",
+                    "Freezer Name",
+                    "Rack Number",
+                    "Box Number"
+                ]
+            ]
+            .drop_duplicates()
+            .reset_index(drop=True)
+        )
+
+        box_options = {
+            i: (
+                f"{row['Box Name']} | "
+                f"Freezer: {row['Freezer Name']} | "
+                f"Rack: {row['Rack Number']} | "
+                f"Box: {row['Box Number']}"
+            )
+            for i, row in existing_boxes.iterrows()
+        }
+
+        with st.form("add_existing_box_form_80C"):
+
+            selected_existing_box = st.selectbox(
+                "Select Existing Box",
+                list(box_options.keys()),
+                format_func=lambda x: box_options[x],
+                key="existing_box_selection_80C"
+            )
+
+            existing_box = existing_boxes.loc[
+                selected_existing_box
+            ]
+
+            existing_box_name = existing_box["Box Name"]
+            existing_freezer = existing_box["Freezer Name"]
+            existing_rack = existing_box["Rack Number"]
+            existing_box_number = existing_box["Box Number"]
+
+            existing_items = inventory[
+                (inventory["Box Name"] == existing_box_name) &
+                (inventory["Freezer Name"] == existing_freezer) &
+                (inventory["Rack Number"] == existing_rack) &
+                (inventory["Box Number"] == existing_box_number)
+            ]
+
+            current_notes = ""
+
+            if not existing_items.empty:
+                current_notes = str(
+                    existing_items.iloc[0]["Notes"]
+                )
+
+            existing_item_col, existing_quantity_col = st.columns([3, 1])
+
+            with existing_item_col:
+                existing_item = st.text_input(
+                    "New Item Name",
+                    placeholder="Enter item name",
+                    key="existing_item_name_80C"
+                )
+
+            with existing_quantity_col:
+                existing_quantity = st.number_input(
+                    "Quantity",
+                    min_value=0,
+                    step=1,
+                    key="existing_item_quantity_80C"
+                )
+
+            existing_notes = st.text_area(
+                "Box Notes",
+                value=current_notes,
+                height=80,
+                key="existing_box_notes_80C"
+            )
+
+            existing_box_submitted = st.form_submit_button(
+                "Add Item to Existing Box",
+                use_container_width=True
+            )
+
+            if existing_box_submitted:
+
+                if not existing_item.strip():
+
+                    st.error("Please enter an item name.")
+
+                else:
+
+                    new_row = pd.DataFrame(
+                        [[
+                            existing_box_name,
+                            existing_item.strip(),
+                            existing_quantity,
+                            existing_freezer,
+                            existing_rack,
+                            existing_box_number,
+                            existing_notes
+                        ]],
+                        columns=COLUMNS
+                    )
+
+                    updated_inventory = pd.concat(
+                        [inventory, new_row],
+                        ignore_index=True
+                    )
+
+                    # Keep the box notes consistent for all items
+                    # stored in the selected box.
+                    same_box = (
+                        (updated_inventory["Box Name"] == existing_box_name) &
+                        (updated_inventory["Freezer Name"] == existing_freezer) &
+                        (updated_inventory["Rack Number"] == existing_rack) &
+                        (updated_inventory["Box Number"] == existing_box_number)
+                    )
+
+                    updated_inventory.loc[
+                        same_box,
+                        "Notes"
+                    ] = existing_notes
+
+                    new_sha = save_to_github(
+                        updated_inventory,
+                        github_sha
+                    )
+
+                    if new_sha is not None:
+
+                        st.success(
+                            f"'{existing_item.strip()}' added to "
+                            f"'{existing_box_name}' successfully!"
+                        )
+
+                        st.rerun()
 
 
 # ============================================================
@@ -602,13 +755,11 @@ elif section == "Update":
 
                     else:
 
-                        # Preserve the original box location.
                         old_box_name = current["Box Name"]
                         old_freezer = current["Freezer Name"]
                         old_rack = current["Rack Number"]
                         old_box = current["Box Number"]
 
-                        # Update the selected item.
                         inventory.loc[index, "Box Name"] = new_box_name.strip()
                         inventory.loc[index, "Item"] = new_item.strip()
                         inventory.loc[index, "Quantity"] = new_quantity
@@ -616,8 +767,6 @@ elif section == "Update":
                         inventory.loc[index, "Rack Number"] = str(new_rack)
                         inventory.loc[index, "Box Number"] = str(new_box)
 
-                        # Update notes for items remaining
-                        # in the original box.
                         same_box = (
                             (inventory["Box Name"] == old_box_name) &
                             (inventory["Freezer Name"] == old_freezer) &
