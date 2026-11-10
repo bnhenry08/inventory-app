@@ -1,8 +1,13 @@
+
 import streamlit as st
 import pandas as pd
 import requests
 import base64
 from io import StringIO
+
+# -----------------------------
+# CONFIGURATION
+# -----------------------------
 
 GITHUB_FILE = "inventory_-80C.csv"
 
@@ -58,6 +63,7 @@ def github_url():
 
 
 def load_from_github():
+
     response = requests.get(
         github_url(),
         headers=github_headers(),
@@ -95,6 +101,7 @@ def load_from_github():
 
 
 def save_to_github(df, sha):
+
     csv_content = df.to_csv(index=False)
 
     encoded = base64.b64encode(
@@ -135,6 +142,7 @@ if not st.session_state.auth:
     st.title("🧬 Inventory Login 🧬")
 
     with st.form("login_form"):
+
         password = st.text_input(
             "Enter password",
             type="password"
@@ -143,9 +151,11 @@ if not st.session_state.auth:
         login_submitted = st.form_submit_button("Login")
 
         if login_submitted:
+
             if password == st.secrets["password"]:
                 st.session_state.auth = True
                 st.rerun()
+
             else:
                 st.error("Wrong password")
 
@@ -169,14 +179,12 @@ st.header("New Box")
 
 with st.form("add_new_box_form"):
 
-    # 1. Box Name
     new_box_name = st.text_input(
         "Box Name",
         placeholder="Enter a new box name",
         key="new_box_name"
     )
 
-    # 2. Freezer Name
     new_freezer_name = st.radio(
         "Freezer Name",
         FREEZER_NAMES,
@@ -184,7 +192,6 @@ with st.form("add_new_box_form"):
         key="new_freezer_name"
     )
 
-    # 3. Rack Number
     new_rack_number = st.radio(
         "Rack Number",
         RACK_NUMBERS,
@@ -192,7 +199,6 @@ with st.form("add_new_box_form"):
         key="new_rack_number"
     )
 
-    # 4. Box Number
     new_box_number = st.radio(
         "Box Number",
         BOX_NUMBERS,
@@ -200,7 +206,6 @@ with st.form("add_new_box_form"):
         key="new_box_number"
     )
 
-    # 5. Item Name and Quantity on the same row
     new_item_col, new_quantity_col = st.columns([3, 1])
 
     with new_item_col:
@@ -218,7 +223,6 @@ with st.form("add_new_box_form"):
             key="new_item_quantity"
         )
 
-    # 6. Notes
     new_notes = st.text_area(
         "Box Notes",
         placeholder="Enter notes for this box...",
@@ -237,6 +241,7 @@ with st.form("add_new_box_form"):
             st.error("Please enter an item name.")
 
         else:
+
             new_row = pd.DataFrame(
                 [[
                     new_box_name.strip(),
@@ -261,12 +266,15 @@ with st.form("add_new_box_form"):
             )
 
             if new_sha is not None:
+
                 inventory = updated_inventory
                 github_sha = new_sha
+
                 st.success(
                     f"New box '{new_box_name.strip()}' and item "
                     f"'{new_item.strip()}' saved to GitHub."
                 )
+
                 st.rerun()
 
 
@@ -276,9 +284,13 @@ with st.form("add_new_box_form"):
 
 st.header("Search")
 
-search = st.text_input("Search items", key="inventory_search")
+search = st.text_input(
+    "Search items",
+    key="inventory_search"
+)
 
 if search:
+
     filtered = inventory[
         inventory.astype(str).apply(
             lambda row: row.str.contains(
@@ -290,6 +302,7 @@ if search:
             axis=1
         )
     ]
+
 else:
     filtered = inventory
 
@@ -322,9 +335,11 @@ if update_search:
     ].reset_index()
 
     if len(matches) == 0:
+
         st.warning("No matching items found.")
 
     else:
+
         options = {
             i: (
                 f"{row['Box Name']} | "
@@ -346,13 +361,8 @@ if update_search:
         )
 
         index = matches.loc[selected, "index"]
-        current = inventory.loc[index]
+        current = inventory.loc[index].copy()
 
-<<<<<<< HEAD
-        # Box Name - allow editing to any text value
-=======
-        # Box Name
->>>>>>> baaaa85b92a516033ffe83b7fba32d3363766fe2
         new_box_name = st.text_input(
             "Box Name",
             value=str(current["Box Name"]),
@@ -382,6 +392,7 @@ if update_search:
         )
 
         current_freezer = str(current["Freezer Name"])
+
         freezer_index = (
             FREEZER_NAMES.index(current_freezer)
             if current_freezer in FREEZER_NAMES
@@ -397,6 +408,7 @@ if update_search:
         )
 
         current_rack = str(current["Rack Number"])
+
         rack_index = (
             RACK_NUMBERS.index(current_rack)
             if current_rack in RACK_NUMBERS
@@ -412,6 +424,7 @@ if update_search:
         )
 
         current_box = str(current["Box Number"])
+
         box_index = (
             BOX_NUMBERS.index(current_box)
             if current_box in BOX_NUMBERS
@@ -428,32 +441,44 @@ if update_search:
 
         if st.button("Save Updates"):
 
-            inventory.loc[index, "Box Name"] = new_box_name
+            # Preserve the original box location.
+            old_box_name = current["Box Name"]
+            old_freezer = current["Freezer Name"]
+            old_rack = current["Rack Number"]
+            old_box = current["Box Number"]
+
+            # Update the selected item.
+            inventory.loc[index, "Box Name"] = new_box_name.strip()
             inventory.loc[index, "Quantity"] = new_quantity
             inventory.loc[index, "Freezer Name"] = new_freezer
             inventory.loc[index, "Rack Number"] = str(new_rack)
             inventory.loc[index, "Box Number"] = str(new_box)
 
-            # Update notes for all items in the same box.
+            # Update notes for the remaining items
+            # in the original box.
             same_box = (
-                (inventory["Box Name"] == current["Box Name"]) &
-                (inventory["Freezer Name"] == new_freezer) &
-                (inventory["Rack Number"] == str(new_rack)) &
-                (inventory["Box Number"] == str(new_box))
+                (inventory["Box Name"] == old_box_name) &
+                (inventory["Freezer Name"] == old_freezer) &
+                (inventory["Rack Number"] == old_rack) &
+                (inventory["Box Number"] == old_box)
             )
 
             inventory.loc[same_box, "Notes"] = str(new_notes)
 
+            # Save changes to GitHub.
             new_sha = save_to_github(
                 inventory,
                 github_sha
             )
 
             if new_sha is not None:
+
                 github_sha = new_sha
+
                 st.success(
                     "Item information updated and saved to GitHub."
                 )
+
                 st.rerun()
 
 
@@ -467,10 +492,11 @@ csv = inventory.to_csv(index=False)
 
 st.download_button(
     "Download CSV",
-    csv,
-    "inventory_-80C.csv",
-    "text/csv",
-    key="download_inventory"
+    data=csv,
+    file_name="inventory_-80C.csv",
+    mime="text/csv",
+    key="download_inventory",
+    use_container_width=True
 )
 
 
@@ -497,9 +523,11 @@ if delete_search:
     ].reset_index()
 
     if len(delete_matches) == 0:
+
         st.warning("No matching items found.")
 
     else:
+
         delete_options = {
             i: (
                 f"{row['Item']} | "
@@ -519,7 +547,10 @@ if delete_search:
             key="delete_item_selection"
         )
 
-        if st.button("Delete Item", key="delete_item_button"):
+        if st.button(
+            "Delete Item",
+            key="delete_item_button"
+        ):
 
             index_to_delete = delete_matches.loc[
                 selected_delete,
@@ -536,7 +567,12 @@ if delete_search:
             )
 
             if new_sha is not None:
+
                 inventory = updated_inventory
                 github_sha = new_sha
-                st.success("Item deleted and saved to GitHub.")
+
+                st.success(
+                    "Item deleted and saved to GitHub."
+                )
+
                 st.rerun()
