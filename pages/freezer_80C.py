@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import requests
@@ -170,11 +169,10 @@ st.header("➕ Add Item to Existing Box")
 
 with st.form("add_existing_box_form"):
 
-    # 1. Box Name
-    box_name = st.radio(
+    # 1. Box Name - type any box name
+    box_name = st.text_input(
         "Box Name",
-        BOX_NAMES,
-        horizontal=True,
+        placeholder="Type box name",
         key="existing_box_name"
     )
 
@@ -455,29 +453,10 @@ if update_search:
         index = matches.loc[selected, "index"]
         current = inventory.loc[index]
 
-        # Box Name options
-        box_name_options = [
-            "Antibiotics [Puromycin, Kanamycin, Carbenicillin]",
-            "Antibiotics [Hygromycin, Tetracyclin]",
-            "Xgal, IPTG Aliquotes [Blue/White Screening]",
-            "dNTP",
-            "Western Blot",
-            "DNase, Pro.K, Phosphotase, RNase, PUREExpress, Capping",
-            "1KB+ DNA Ladder Aliquotes",
-            "T4 Ligase, Monarch Carrier RNA",
-            "PCR MM Aliquot, Cloning MM Aliquots",
-            "Restriction Enzymes"
-        ]
-
-        new_box_name = st.radio(
+        # Box Name - allow editing to any text value
+        new_box_name = st.text_input(
             "Box Name",
-            box_name_options,
-            index=(
-                box_name_options.index(current["Box Name"])
-                if current["Box Name"] in box_name_options
-                else 0
-            ),
-            horizontal=True,
+            value=str(current["Box Name"]),
             key="update_box_name"
         )
 
