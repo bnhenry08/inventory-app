@@ -165,7 +165,7 @@ st.title("❄️ -20°C Freezer Inventory ❄️")
 # ADD ITEM TO EXISTING BOX
 # -----------------------------
 
-st.header("➕ Add Item to Existing Box")
+st.header("Add Item to Existing Box")
 
 with st.form("add_existing_box_form"):
 
@@ -271,7 +271,7 @@ with st.form("add_existing_box_form"):
 # ADD NEW BOX
 # -----------------------------
 
-st.header("➕ New Box")
+st.header("New Box")
 
 with st.form("add_new_box_form"):
 
@@ -380,7 +380,7 @@ with st.form("add_new_box_form"):
 # SEARCH
 # -----------------------------
 
-st.header("🔍 Search All Inventories")
+st.header("Search All Inventories")
 
 search = st.text_input("Search items", key="inventory_search")
 
@@ -409,7 +409,7 @@ st.dataframe(
 # UPDATE ITEM INFORMATION
 # -----------------------------
 
-st.header("✏️ Update Item Information")
+st.header("pdate Item Information")
 
 update_search = st.text_input(
     "Search item to update",
@@ -584,7 +584,7 @@ if update_search:
 # DOWNLOAD
 # -----------------------------
 
-st.header("⬇️ Download Inventory")
+st.header("ownload Inventory")
 
 csv = inventory.to_csv(index=False)
 
