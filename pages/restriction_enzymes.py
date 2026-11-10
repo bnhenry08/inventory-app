@@ -395,7 +395,7 @@ st.dataframe(
 # -----------------------------
 
 st.divider()
-st.header("pdate Enzyme Information")
+st.header("Update Enzyme Information")
 
 if inventory.empty:
     st.info("No enzymes have been added yet.")
@@ -555,7 +555,7 @@ else:
 # -----------------------------
 
 st.divider()
-st.header("ownload Restriction Enzyme Inventory")
+st.header("Download Restriction Enzyme Inventory")
 
 csv_content = inventory.to_csv(index=False)
 
