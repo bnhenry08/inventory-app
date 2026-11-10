@@ -42,9 +42,9 @@ def github_url():
     )
 
 
-def load_from_github():
+def load_from_github(file_name):
     response = requests.get(
-        github_url(),
+        github_url(file_name),
         headers=github_headers(),
         timeout=30
     )
@@ -95,7 +95,7 @@ def save_to_github(df, sha):
         payload["sha"] = sha
 
     response = requests.put(
-        github_url(),
+        github_url(file_name),
         headers=github_headers(),
         json=payload,
         timeout=30
@@ -141,9 +141,22 @@ if not st.session_state.auth:
 # LOAD INVENTORY
 # -----------------------------
 
-inventory, github_sha = load_from_github()
+inventory_options = {
+    "-20°C Freezer Inventory": "20C_inventory.csv",
+    "-80°C Freezer Inventory": "-80C_inventory.csv"
+}
 
-st.title("❄️ -20°C Freezer Inventory ❄️")
+selected_inventory = st.selectbox(
+    "Select Inventory",
+    list(inventory_options.keys())
+)
+
+selected_file = inventory_options[selected_inventory]
+
+inventory, github_sha = load_from_github(selected_file)
+
+st.title(f"❄️ {selected_inventory} ❄️")
+
 
 
 # -----------------------------
@@ -238,7 +251,7 @@ with st.form("add_existing_box_form"):
             )
 
             new_sha = save_to_github(
-                updated_inventory,
+                inventory,
                 github_sha
             )
 
@@ -346,7 +359,7 @@ with st.form("add_new_box_form"):
             )
 
             new_sha = save_to_github(
-                updated_inventory,
+                inventory,
                 github_sha
             )
 
@@ -619,7 +632,7 @@ if delete_search:
             ).reset_index(drop=True)
 
             new_sha = save_to_github(
-                updated_inventory,
+                inventory,
                 github_sha
             )
 
