@@ -4,6 +4,8 @@ import requests
 import base64
 from io import StringIO
 
+GITHUB_FILE = "inventory_-80C.csv"
+
 COLUMNS = [
     "Box Name",
     "Item",
@@ -14,13 +16,28 @@ COLUMNS = [
     "Notes"
 ]
 
-FREEZER_NAMES = [
-    "Freezer Farm",
-    "150"
+BOX_NAMES = [
+    "Antibiotics [Puromycin, Kanamycin, Carbenicillin]",
+    "Antibiotics [Hygromycin, Tetracyclin]",
+    "Xgal, IPTG Aliquotes [Blue/White Screening]",
+    "dNTP",
+    "Western Blot",
+    "DNase, Pro.K, Phosphotase, RNase, PUREExpress, Capping",
+    "1KB+ DNA Ladder Aliquotes",
+    "T4 Ligase, Monarch Carrier RNA",
+    "PCR MM Aliquot, Cloning MM Aliquots",
+    "Restriction Enzymes"
 ]
 
-RACK_NUMBERS = [str(i) for i in range(1, 25)]
-BOX_NUMBERS = [str(i) for i in range(1, 25)]
+FREEZER_NAMES = [
+    "Pig 150",
+    "Rabbit 150",
+    "Frog 144",
+    "Lobster 144"
+]
+
+RACK_NUMBERS = [str(i) for i in range(1, 24)]
+BOX_NUMBERS = [str(i) for i in range(1, 26)]
 
 
 # -----------------------------
@@ -38,13 +55,13 @@ def github_url():
     return (
         f"https://api.github.com/repos/"
         f"{st.secrets['github_repo']}/contents/"
-        f"{st.secrets['github_file']}"
+        f"{GITHUB_FILE}"
     )
 
 
-def load_from_github(file_name):
+def load_from_github():
     response = requests.get(
-        github_url(file_name),
+        github_url(),
         headers=github_headers(),
         timeout=30
     )
@@ -95,7 +112,7 @@ def save_to_github(df, sha):
         payload["sha"] = sha
 
     response = requests.put(
-        github_url(file_name),
+        github_url(),
         headers=github_headers(),
         json=payload,
         timeout=30
@@ -141,22 +158,9 @@ if not st.session_state.auth:
 # LOAD INVENTORY
 # -----------------------------
 
-inventory_options = {
-    "-20°C Freezer Inventory": "20C_inventory.csv",
-    "-80°C Freezer Inventory": "-80C_inventory.csv"
-}
+inventory, github_sha = load_from_github()
 
-selected_inventory = st.selectbox(
-    "Select Inventory",
-    list(inventory_options.keys())
-)
-
-selected_file = inventory_options[selected_inventory]
-
-inventory, github_sha = load_from_github(selected_file)
-
-st.title(f"❄️ {selected_inventory} ❄️")
-
+st.title("❄️ -80°C Freezer Inventory ❄️")
 
 
 # -----------------------------
@@ -228,7 +232,10 @@ with st.form("add_existing_box_form"):
 
     if existing_submitted:
 
-        if not item.strip():
+        if not box_name.strip():
+            st.error("Please enter a box name.")
+
+        elif not item.strip():
             st.error("Please enter an item name.")
 
         else:
@@ -251,7 +258,7 @@ with st.form("add_existing_box_form"):
             )
 
             new_sha = save_to_github(
-                inventory,
+                updated_inventory,
                 github_sha
             )
 
@@ -359,7 +366,7 @@ with st.form("add_new_box_form"):
             )
 
             new_sha = save_to_github(
-                inventory,
+                updated_inventory,
                 github_sha
             )
 
@@ -569,7 +576,7 @@ csv = inventory.to_csv(index=False)
 st.download_button(
     "Download CSV",
     csv,
-    "inventory.csv",
+    "inventory_-80C.csv",
     "text/csv",
     key="download_inventory"
 )
@@ -632,7 +639,7 @@ if delete_search:
             ).reset_index(drop=True)
 
             new_sha = save_to_github(
-                inventory,
+                updated_inventory,
                 github_sha
             )
 
