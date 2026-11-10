@@ -31,12 +31,9 @@ BOX_NAMES = [
 ]
 
 FREEZER_NAMES = [
-    "Pig 150",
-    "Rabbit 150",
-    "Frog 144",
-    "Lobster 144"
+    "Freezer Farm",
+    "150",
 ]
-
 RACK_NUMBERS = [str(i) for i in range(1, 24)]
 BOX_NUMBERS = [str(i) for i in range(1, 26)]
 
