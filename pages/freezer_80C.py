@@ -413,7 +413,7 @@ st.dataframe(
 # UPDATE ITEM INFORMATION
 # -----------------------------
 
-st.header("pdate Item Information")
+st.header("Update Item Information")
 
 update_search = st.text_input(
     "Search item to update",
