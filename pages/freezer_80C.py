@@ -30,10 +30,8 @@ BOX_NAMES = [
 ]
 
 FREEZER_NAMES = [
-    "Pig 150",
-    "Rabbit 150",
-    "Frog 144",
-    "Lobster 144"
+    "Freezer Farm",
+    "150",
 ]
 
 RACK_NUMBERS = [str(i) for i in range(1, 24)]
@@ -350,7 +348,11 @@ if update_search:
         index = matches.loc[selected, "index"]
         current = inventory.loc[index]
 
+<<<<<<< HEAD
         # Box Name - allow editing to any text value
+=======
+        # Box Name
+>>>>>>> baaaa85b92a516033ffe83b7fba32d3363766fe2
         new_box_name = st.text_input(
             "Box Name",
             value=str(current["Box Name"]),
@@ -434,7 +436,7 @@ if update_search:
 
             # Update notes for all items in the same box.
             same_box = (
-                (inventory["Box Name"] == new_box_name) &
+                (inventory["Box Name"] == current["Box Name"]) &
                 (inventory["Freezer Name"] == new_freezer) &
                 (inventory["Rack Number"] == str(new_rack)) &
                 (inventory["Box Number"] == str(new_box))

@@ -188,10 +188,13 @@ st.caption(f"Storage location: {FREEZER_NAME} | Rack {RACK_NUMBER} | Box {BOX_NU
 # -----------------------------
 
 st.header("Add Restriction Enzyme")
+<<<<<<< HEAD
 with st.form("add_enzyme_form"):
     enzyme_name = st.text_input("Enzyme Name", placeholder="Enter enzyme name")
     dilute_before_use = st.radio("Dilute Before Use", YES_NO, index=1, horizontal=True)
     time_saver = st.radio("Time Saver", YES_NO, index=0, horizontal=True)
+=======
+>>>>>>> baaaa85b92a516033ffe83b7fba32d3363766fe2
 
     buffer_value = buffer_checkboxes("add", [])
     temperature = st.selectbox(
@@ -226,7 +229,16 @@ if add_submitted:
 
 st.divider()
 st.header("Search and View Enzymes")
+<<<<<<< HEAD
 search = st.text_input("Search enzymes", key="enzyme_search")
+=======
+
+search = st.text_input(
+    "Search enzymes",
+    key="enzyme_search"
+)
+
+>>>>>>> baaaa85b92a516033ffe83b7fba32d3363766fe2
 if search:
     filtered = inventory[
         inventory.astype(str).apply(
@@ -246,6 +258,10 @@ st.dataframe(filtered, use_container_width=True, hide_index=True)
 
 st.divider()
 st.header("Update Enzyme Information")
+<<<<<<< HEAD
+=======
+
+>>>>>>> baaaa85b92a516033ffe83b7fba32d3363766fe2
 if inventory.empty:
     st.info("No enzymes have been added yet.")
 else:
@@ -314,6 +330,12 @@ else:
 
 st.divider()
 st.header("Download Restriction Enzyme Inventory")
+<<<<<<< HEAD
+=======
+
+csv_content = inventory.to_csv(index=False)
+
+>>>>>>> baaaa85b92a516033ffe83b7fba32d3363766fe2
 st.download_button(
     "Download Enzyme CSV",
     data=inventory.to_csv(index=False),
@@ -329,7 +351,12 @@ st.download_button(
 # -----------------------------
 
 st.divider()
+<<<<<<< HEAD
 st.header("Delete Enzyme")
+=======
+st.header("Delete Enzyme (Note: This is final)")
+
+>>>>>>> baaaa85b92a516033ffe83b7fba32d3363766fe2
 if inventory.empty:
     st.info("There are no enzymes to delete.")
 else:
