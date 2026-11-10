@@ -5,9 +5,10 @@ import requests
 import base64
 from io import StringIO
 
-# -----------------------------
+
+# ============================================================
 # CONFIGURATION
-# -----------------------------
+# ============================================================
 
 COLUMNS = [
     "Box Name",
@@ -43,18 +44,37 @@ RACK_NUMBERS = [str(i) for i in range(1, 13)]
 BOX_NUMBERS = [str(i) for i in range(1, 10)]
 
 
-# -----------------------------
+# ============================================================
 # PAGE STYLING
-# -----------------------------
+# ============================================================
 
 st.markdown(
     """
     <style>
+    /* Main menu buttons */
     div[data-testid="stButton"] button {
-        min-height: 65px;
-        border-radius: 12px;
-        font-size: 17px;
+        min-height: 145px;
+        width: 100%;
+        border-radius: 18px;
+        font-size: 23px;
         font-weight: 700;
+        white-space: pre-line;
+        line-height: 1.8;
+    }
+
+    /* Mobile menu buttons */
+    @media (max-width: 640px) {
+        div[data-testid="stButton"] button {
+            min-height: 125px;
+            font-size: 19px;
+            padding: 10px 4px;
+        }
+    }
+
+    /* Back button */
+    div[data-testid="stButton"]:has(button[kind="secondary"]) button {
+        min-height: 48px;
+        font-size: 16px;
     }
     </style>
     """,
@@ -62,9 +82,9 @@ st.markdown(
 )
 
 
-# -----------------------------
+# ============================================================
 # GITHUB FUNCTIONS
-# -----------------------------
+# ============================================================
 
 def github_headers():
     return {
@@ -82,6 +102,7 @@ def github_url():
 
 
 def load_from_github():
+
     response = requests.get(
         github_url(),
         headers=github_headers(),
@@ -93,7 +114,7 @@ def load_from_github():
 
     if response.status_code != 200:
         st.error(f"GitHub load failed: {response.text}")
-        return pd.DataFrame(columns=COLUMNS), None
+        st.stop()
 
     data = response.json()
 
@@ -122,6 +143,7 @@ def load_from_github():
 
 
 def save_to_github(df, sha):
+
     csv_content = df.to_csv(index=False)
 
     encoded = base64.b64encode(
@@ -150,9 +172,9 @@ def save_to_github(df, sha):
     return None
 
 
-# -----------------------------
+# ============================================================
 # LOGIN
-# -----------------------------
+# ============================================================
 
 if "auth" not in st.session_state:
     st.session_state.auth = False
@@ -162,6 +184,7 @@ if not st.session_state.auth:
     st.title("🧬 Inventory Login")
 
     with st.form("login_form"):
+
         password = st.text_input(
             "Enter password",
             type="password"
@@ -170,75 +193,122 @@ if not st.session_state.auth:
         login_submitted = st.form_submit_button("Login")
 
         if login_submitted:
+
             if password == st.secrets["password"]:
                 st.session_state.auth = True
                 st.rerun()
+
             else:
                 st.error("Wrong password")
 
     st.stop()
 
 
-# -----------------------------
+# ============================================================
 # LOAD INVENTORY
-# -----------------------------
+# ============================================================
 
 inventory, github_sha = load_from_github()
 
 st.title("❄️ -20°C Freezer Inventory")
 
 
-# -----------------------------
-# SECTION NAVIGATION
-# -----------------------------
+# ============================================================
+# MENU NAVIGATION
+# ============================================================
+
+if "inventory_section" not in st.session_state:
+    st.session_state.inventory_section = "Menu"
+
 
 def set_section(section):
     st.session_state.inventory_section = section
 
 
-if "inventory_section" not in st.session_state:
-    st.session_state.inventory_section = "View"
+def back_to_menu():
+    st.session_state.inventory_section = "Menu"
 
-col1, col2, col3 = st.columns(3, gap="small")
 
-with col1:
+section = st.session_state.inventory_section
+
+
+# ============================================================
+# MAIN MENU - 2 X 2 GRID
+# ============================================================
+
+if section == "Menu":
+
+    st.write("")
+
+    col1, col2 = st.columns(2, gap="medium")
+
+    with col1:
+        st.button(
+            "➕\nAdd",
+            key="menu_add",
+            use_container_width=True,
+            on_click=set_section,
+            args=("Add",)
+        )
+
+    with col2:
+        st.button(
+            "📋\nView",
+            key="menu_view",
+            use_container_width=True,
+            on_click=set_section,
+            args=("View",)
+        )
+
+    st.write("")
+
+    col3, col4 = st.columns(2, gap="medium")
+
+    with col3:
+        st.button(
+            "✏️\nUpdate",
+            key="menu_update",
+            use_container_width=True,
+            on_click=set_section,
+            args=("Update",)
+        )
+
+    with col4:
+        st.button(
+            "🗑️\nDelete",
+            key="menu_delete",
+            use_container_width=True,
+            on_click=set_section,
+            args=("Delete",)
+        )
+
+
+# ============================================================
+# BACK TO MENU BUTTON
+# ============================================================
+
+else:
+
     st.button(
-        "➕ Add",
-        use_container_width=True,
-        on_click=set_section,
-        args=("Add",)
+        "← Back to Menu",
+        key="back_to_menu",
+        on_click=back_to_menu
     )
 
-with col2:
-    st.button(
-        "📋 View",
-        use_container_width=True,
-        on_click=set_section,
-        args=("View",)
-    )
-
-with col3:
-    st.button(
-        "🗑️ Delete",
-        use_container_width=True,
-        on_click=set_section,
-        args=("Delete",)
-    )
-
-st.divider()
+    st.divider()
 
 
 # ============================================================
 # ADD INVENTORY
 # ============================================================
 
-if st.session_state.inventory_section == "Add":
+if section == "Add":
 
     st.header("➕ Add Inventory")
 
-    # -----------------------------
+    # --------------------------------
     # ADD ITEM TO EXISTING BOX
-    # -----------------------------
+    # --------------------------------
 
     st.subheader("Add Item to Existing Box")
 
@@ -307,6 +377,7 @@ if st.session_state.inventory_section == "Add":
                 st.error("Please enter an item name.")
 
             else:
+
                 new_row = pd.DataFrame(
                     [[
                         box_name,
@@ -338,9 +409,9 @@ if st.session_state.inventory_section == "Add":
 
     st.divider()
 
-    # -----------------------------
-    # ADD A NEW BOX
-    # -----------------------------
+    # --------------------------------
+    # CREATE A NEW BOX
+    # --------------------------------
 
     st.subheader("Create a New Box")
 
@@ -411,6 +482,7 @@ if st.session_state.inventory_section == "Add":
                 st.error("Please enter an item name.")
 
             else:
+
                 new_row = pd.DataFrame(
                     [[
                         new_box_name.strip(),
@@ -436,8 +508,8 @@ if st.session_state.inventory_section == "Add":
 
                 if new_sha is not None:
                     st.success(
-                        f"New box '{new_box_name.strip()}' created "
-                        f"and '{new_item.strip()}' added!"
+                        f"New box '{new_box_name.strip()}' "
+                        f"and item '{new_item.strip()}' saved!"
                     )
                     st.rerun()
 
@@ -446,17 +518,18 @@ if st.session_state.inventory_section == "Add":
 # VIEW INVENTORY
 # ============================================================
 
-elif st.session_state.inventory_section == "View":
+elif section == "View":
 
     st.header("📋 View Inventory")
 
     search = st.text_input(
         "Search inventory",
         placeholder="Search by item, box, freezer, rack, or notes...",
-        key="inventory_search"
+        key="view_search"
     )
 
     if search:
+
         filtered = inventory[
             inventory.astype(str).apply(
                 lambda row: row.str.contains(
@@ -468,6 +541,7 @@ elif st.session_state.inventory_section == "View":
                 axis=1
             )
         ]
+
     else:
         filtered = inventory
 
@@ -488,13 +562,14 @@ elif st.session_state.inventory_section == "View":
         use_container_width=True
     )
 
-    st.divider()
 
-    # -----------------------------
-    # UPDATE ITEM INFORMATION
-    # -----------------------------
+# ============================================================
+# UPDATE INVENTORY
+# ============================================================
 
-    st.subheader("Update Item Information")
+elif section == "Update":
+
+    st.header("✏️ Update Inventory")
 
     update_search = st.text_input(
         "Search for an item to update",
@@ -513,9 +588,11 @@ elif st.session_state.inventory_section == "View":
         ].reset_index()
 
         if len(matches) == 0:
+
             st.warning("No matching items found.")
 
         else:
+
             options = {
                 i: (
                     f"{row['Box Name']} | "
@@ -540,20 +617,10 @@ elif st.session_state.inventory_section == "View":
 
             current_box_name = str(current["Box Name"])
 
-            box_name_options = BOX_NAMES.copy()
+            box_options = BOX_NAMES.copy()
 
-            if current_box_name not in box_name_options:
-                box_name_options.append(current_box_name)
-
-            box_name_index = box_name_options.index(current_box_name)
-
-            new_box_name = st.radio(
-                "Box Name",
-                box_name_options,
-                index=box_name_index,
-                horizontal=True,
-                key=f"update_box_name_{index}"
-            )
+            if current_box_name not in box_options:
+                box_options.append(current_box_name)
 
             current_quantity = pd.to_numeric(
                 current["Quantity"],
@@ -563,99 +630,102 @@ elif st.session_state.inventory_section == "View":
             if pd.isna(current_quantity):
                 current_quantity = 0
 
-            new_quantity = st.number_input(
-                "Quantity",
-                min_value=0,
-                step=1,
-                value=int(current_quantity),
-                key=f"update_quantity_{index}"
-            )
-
             current_freezer = str(current["Freezer Name"])
-
             freezer_options = FREEZER_NAMES.copy()
+
             if current_freezer not in freezer_options:
                 freezer_options.append(current_freezer)
 
-            new_freezer = st.radio(
-                "Freezer Name",
-                freezer_options,
-                index=freezer_options.index(current_freezer),
-                horizontal=True,
-                key=f"update_freezer_{index}"
-            )
-
             current_rack = str(current["Rack Number"])
-
             rack_options = RACK_NUMBERS.copy()
+
             if current_rack not in rack_options:
                 rack_options.append(current_rack)
 
-            new_rack = st.radio(
-                "Rack Number",
-                rack_options,
-                index=rack_options.index(current_rack),
-                horizontal=True,
-                key=f"update_rack_{index}"
-            )
-
             current_box = str(current["Box Number"])
+            box_number_options = BOX_NUMBERS.copy()
 
-            box_options = BOX_NUMBERS.copy()
-            if current_box not in box_options:
-                box_options.append(current_box)
+            if current_box not in box_number_options:
+                box_number_options.append(current_box)
 
-            new_box = st.radio(
-                "Box Number",
-                box_options,
-                index=box_options.index(current_box),
-                horizontal=True,
-                key=f"update_box_{index}"
-            )
+            with st.form("update_item_form"):
 
-            new_notes = st.text_area(
-                "Box Notes",
-                value=str(current["Notes"]),
-                key=f"update_notes_{index}"
-            )
-
-            if st.button(
-                "Save Updates",
-                use_container_width=True,
-                key=f"save_updates_{index}"
-            ):
-
-                inventory.loc[index, "Box Name"] = new_box_name
-                inventory.loc[index, "Quantity"] = new_quantity
-                inventory.loc[index, "Freezer Name"] = new_freezer
-                inventory.loc[index, "Rack Number"] = str(new_rack)
-                inventory.loc[index, "Box Number"] = str(new_box)
-
-                # Apply the notes to items in the selected box.
-                same_box = (
-                    (inventory["Box Name"] == new_box_name) &
-                    (inventory["Freezer Name"] == new_freezer) &
-                    (inventory["Rack Number"] == str(new_rack)) &
-                    (inventory["Box Number"] == str(new_box))
+                updated_box_name = st.selectbox(
+                    "Box Name",
+                    box_options,
+                    index=box_options.index(current_box_name)
                 )
 
-                inventory.loc[same_box, "Notes"] = str(new_notes)
-
-                new_sha = save_to_github(
-                    inventory,
-                    github_sha
+                updated_item = st.text_input(
+                    "Item Name",
+                    value=str(current["Item"])
                 )
 
-                if new_sha is not None:
-                    st.success("Item information updated!")
-                    st.rerun()
+                updated_quantity = st.number_input(
+                    "Quantity",
+                    min_value=0,
+                    step=1,
+                    value=int(current_quantity)
+                )
+
+                updated_freezer = st.selectbox(
+                    "Freezer Name",
+                    freezer_options,
+                    index=freezer_options.index(current_freezer)
+                )
+
+                updated_rack = st.selectbox(
+                    "Rack Number",
+                    rack_options,
+                    index=rack_options.index(current_rack)
+                )
+
+                updated_box = st.selectbox(
+                    "Box Number",
+                    box_number_options,
+                    index=box_number_options.index(current_box)
+                )
+
+                updated_notes = st.text_area(
+                    "Notes",
+                    value=str(current["Notes"])
+                )
+
+                update_submitted = st.form_submit_button(
+                    "Save Updates",
+                    use_container_width=True
+                )
+
+                if update_submitted:
+
+                    if not updated_item.strip():
+                        st.error("Item name cannot be blank.")
+
+                    else:
+
+                        inventory.loc[index, "Box Name"] = updated_box_name
+                        inventory.loc[index, "Item"] = updated_item.strip()
+                        inventory.loc[index, "Quantity"] = updated_quantity
+                        inventory.loc[index, "Freezer Name"] = updated_freezer
+                        inventory.loc[index, "Rack Number"] = str(updated_rack)
+                        inventory.loc[index, "Box Number"] = str(updated_box)
+                        inventory.loc[index, "Notes"] = updated_notes
+
+                        new_sha = save_to_github(
+                            inventory,
+                            github_sha
+                        )
+
+                        if new_sha is not None:
+                            st.success("Item updated successfully!")
+                            st.rerun()
 
 
 # ============================================================
 # DELETE INVENTORY
 # ============================================================
 
-elif st.session_state.inventory_section == "Delete":
+elif section == "Delete":
 
     st.header("🗑️ Delete Inventory")
 
@@ -682,9 +752,11 @@ elif st.session_state.inventory_section == "Delete":
         ].reset_index()
 
         if len(delete_matches) == 0:
+
             st.warning("No matching items found.")
 
         else:
+
             delete_options = {
                 i: (
                     f"{row['Item']} | "
