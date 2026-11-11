@@ -297,7 +297,7 @@ if inventory is None:
 # PAGE TITLE
 # ============================================================
 
-st.title("🧬 Restriction Enzymes")
+st.title("✂️  Restriction Enzymes")
 
 st.caption(
     f"Storage location: {FREEZER_NAME} | "
