@@ -103,7 +103,7 @@ restriction_enzymes_page = st.Page(
 plasmid_inventory_page = st.Page(
     "pages/plasmid_inventory.py",
     title="View Plasmid Inventory",
-    icon="🧬"
+    icon="⭕"
 )
 
 pg = st.navigation([

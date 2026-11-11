@@ -118,7 +118,7 @@ with col3:
     st.page_link(
         "pages/restriction_enzymes.py",
         label="Restriction Enzymes",
-        icon="🧬",
+        icon="✂️",
         use_container_width=True
     )
 
@@ -126,6 +126,6 @@ with col4:
     st.page_link(
         "pages/plasmid_inventory.py",
         label="View Plasmid Inventory",
-        icon="🧬",
+        icon="⭕",
         use_container_width=True
     )
