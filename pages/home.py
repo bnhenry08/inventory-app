@@ -8,7 +8,6 @@ import streamlit as st
 st.markdown(
     """
     <style>
-    /* Main page title */
     .home-title {
         text-align: center;
         font-size: 38px;
@@ -17,7 +16,6 @@ st.markdown(
         margin-bottom: 30px;
     }
 
-    /* Inventory page tiles */
     div[data-testid="stPageLink"] {
         width: 100%;
     }
@@ -37,7 +35,6 @@ st.markdown(
         font-weight: 700 !important;
     }
 
-    /* Keep the icon and text vertically arranged */
     div[data-testid="stPageLink"] a > div {
         display: flex !important;
         flex-direction: column !important;
@@ -46,14 +43,12 @@ st.markdown(
         gap: 12px !important;
     }
 
-    /* Icon size */
     div[data-testid="stPageLink"] a [data-testid="stIconEmoji"],
     div[data-testid="stPageLink"] a [data-testid="stIconMaterial"] {
         font-size: 48px !important;
         line-height: 1.2 !important;
     }
 
-    /* Keep two columns on smaller screens */
     div[data-testid="stHorizontalBlock"] {
         gap: 16px !important;
     }
@@ -123,6 +118,14 @@ with col3:
     st.page_link(
         "pages/restriction_enzymes.py",
         label="Restriction Enzymes",
+        icon="🧬",
+        use_container_width=True
+    )
+
+with col4:
+    st.page_link(
+        "pages/plasmid_inventory.py",
+        label="View Plasmid Inventory",
         icon="🧬",
         use_container_width=True
     )
