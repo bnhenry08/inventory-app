@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import requests
@@ -34,6 +33,7 @@ BOX_NAMES = [
     "IgA, IgY, Medi AB",
     "In vitro transcription Box",
     "IPTG, Xgal Stocks, Lypophilized Flag (Genescript) (Stocks)",
+    "Ladder Box and Dye",
     "Luciferase, Flow Cytometry (Stocks)",
     "Lysozyme, TPCK, Protease Inhibitor, BaselineZero (Stocks)",
     "MTT solution (5mg/ml)",
