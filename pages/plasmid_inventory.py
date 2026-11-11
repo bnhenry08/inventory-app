@@ -7,7 +7,7 @@ from pathlib import Path
 # PAGE TITLE
 # -----------------------------
 
-st.title("🧬 Plasmid Inventory")
+st.title("⭕  Plasmid Inventory")
 
 st.write("Search and view the laboratory plasmid inventory.")
 
