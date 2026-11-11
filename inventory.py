@@ -7,8 +7,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Responsive styling for phones and tablets. The app remains a Streamlit web app;
-# users can add its URL to their phone home screen from the browser menu.
+# Responsive styling for phones and tablets.
 st.markdown(
     """
     <style>
@@ -100,11 +99,19 @@ restriction_enzymes_page = st.Page(
     icon="✂️"
 )
 
+# NEW: Read-only Plasmid Inventory
+plasmid_inventory_page = st.Page(
+    "pages/plasmid_inventory.py",
+    title="View Plasmid Inventory",
+    icon="🧬"
+)
+
 pg = st.navigation([
     home_page,
     freezer_20C_page,
     freezer_80C_page,
-    restriction_enzymes_page
+    restriction_enzymes_page,
+    plasmid_inventory_page
 ])
 
 pg.run()
