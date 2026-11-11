@@ -39,6 +39,34 @@ except FileNotFoundError:
     st.stop()
 
 # -----------------------------
+# FIND SNAPGENE FILE COLUMN
+# -----------------------------
+
+snapgene_column = None
+
+# First, look for a column containing a Google Drive URL
+for column in plasmid_data.columns:
+    values = plasmid_data[column].dropna().astype(str)
+
+    if values.str.contains(
+        r"https?://",
+        case=False,
+        regex=True
+    ).any():
+        snapgene_column = column
+        break
+
+# If no URL is present yet, look for a likely file column
+if snapgene_column is None:
+    for column in plasmid_data.columns:
+        if any(
+            word in column.lower()
+            for word in ["snapgene", "sequence file", "plasmid file"]
+        ):
+            snapgene_column = column
+            break
+
+# -----------------------------
 # INVENTORY SUMMARY
 # -----------------------------
 
@@ -85,8 +113,17 @@ st.caption(
 # READ-ONLY TABLE
 # -----------------------------
 
+column_config = {}
+
+if snapgene_column is not None:
+    column_config[snapgene_column] = st.column_config.LinkColumn(
+        label=snapgene_column,
+        display_text="Open SnapGene File"
+    )
+
 st.dataframe(
     filtered_data,
+    column_config=column_config,
     use_container_width=True,
     hide_index=True,
     height="content"
