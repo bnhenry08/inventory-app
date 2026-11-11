@@ -23,14 +23,20 @@ COLUMNS = [
 BOX_NAMES = [
     "Antibiotics [Puromycin, Kanamycin, Carbenicillin]",
     "Antibiotics [Hygromycin, Tetracyclin]",
-    "Xgal, IPTG Aliquotes [Blue/White Screening]",
+    "Xgal, IPTG Aliquots [Blue/White Screening]",
     "dNTP",
     "Western Blot",
     "DNase, Pro.K, Phosphotase, RNase, PUREExpress, Capping",
-    "1KB+ DNA Ladder Aliquotes",
+    "1KB+ DNA Ladder Aliquots",
     "T4 Ligase, Monarch Carrier RNA",
     "PCR MM Aliquot, Cloning MM Aliquots",
-    "Restriction Enzymes"
+    "Restriction Enzymes",
+    "MTT solution (5mg/ml)",
+    "T4 ligase, Monarch Carrier RNA",
+    "PCR MM Aliquots, Cloning MM Aliquots",
+    "dNTP",
+    "Western Blot",
+    "DNase, ProK, Phosphotase, RNase, PUREExpress, Capping" 
 ]
 
 FREEZER_NAMES = [
