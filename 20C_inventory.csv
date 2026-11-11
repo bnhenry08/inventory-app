@@ -105,7 +105,8 @@ Gene Fragments (1-81),Gene Fragments (1-81),1,Pig 150,11,2,
 "Cutsmart, r3.1",NEBuffer 3,1,Pig 150,11,3,
 "Cutsmart, r3.1",Diluent B (rAlbumin),1,Pig 150,11,3,
 "Cutsmart, r3.1",Diluent A (rAlbumin),1,Pig 150,11,3,
-2' Antibody Box,Secondary Antibodies,1,Pig 150,11,5,
+2' Antibody Box,Secondary Antibodies,1,Pig 150,11,5,"See secondary antibody inventory 
+"
 Plasmids from other labs,Plasmids from Other Labs,1,Pig 150,11,4,"See Plasmid Inventory 
 "
 "Luciferase, Flow Cytometry (Stocks)",Luciferase and Flow Cytometry Stocks,1,Pig 150,1,4,
