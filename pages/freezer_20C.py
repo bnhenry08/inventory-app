@@ -23,6 +23,7 @@ COLUMNS = [
 BOX_NAMES = [
     "1KB+ DNA Ladder Aliquots",
     "2' Antibody Box",
+    "Antibiotics, Glucose (Stocks)",
     "Antibiotics [Puromycin, Kanamycin, Carbenicillin]",
     "Antibiotics [Hygromycin, Tetracyclin]",
     "Cutsmart, r3.1",
@@ -32,6 +33,9 @@ BOX_NAMES = [
     "HPAI",
     "IgA, IgY, Medi AB",
     "In vitro transcription Box",
+    "IPTG, Xgal Stocks, Lypophilized Flag (Genescript) (Stocks)",
+    "Luciferase, Flow Cytometry (Stocks)",
+    "Lysozyme, TPCK, Protease Inhibitor, BaselineZero (Stocks)",
     "MTT solution (5mg/ml)",
     "NEBNext Poly(A) mRNA module, mMessage Machine",
     "PCR MM Aliquot, Cloning MM Aliquots",
