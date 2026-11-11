@@ -1,5 +1,5 @@
 S.N.,Plasmid number ,Name ,Length (bp),Source ,Description,Resistance ,Growth Strain ,Growth Temp,Copy Number ,Note,SnapGene File 
-0,100,100-T7-VEE-GFP,"11,521",Addgene (58977),Alphavirus replicon plasmid,Ampicillin ,DH5a,37C,Unknown ,,https://drive.google.com/file/d/1khrtkTP0ooCXKR4aeVAfZpLWb6T2z-3F/view?usp=drive_link
+0,100,100-T7-VEE-GFP,"11,521",Addgene (58977),Alphavirus replicon plasmid,Ampicillin ,DH5a,37C,Unknown ,,https://drive.google.com/uc?export=download&id=1khrtkTP0ooCXKR4aeVAfZpLWb6T2z-3F
 1,101,101-pCAGGS-RFP,"5,439",Addgene (127347),Mammalian expression plasmid ,Ampicillin ,DH5a,37C,Unknown ,,
 2,102,102-pHCMV-FLUAV-HA,"6,462",Addgene (207273),Plasmid containing HA from PR8 flu virus,Ampicillin ,NEB Stable ,37C ,High Copy ,,
 3,103,103-T7-VEE-FLUAV-HA ,"12,497",Joshi Lab  ,T7-VEE backbone from plasmid 100; FluAV-HA from plasmid 102 ,Ampicillin ,DH5a,37C ,Unknown ,,
