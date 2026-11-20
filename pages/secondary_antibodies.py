@@ -13,6 +13,41 @@ st.title("🧪 Secondary Antibodies")
 st.write("Search and view the laboratory secondary antibody inventory.")
 
 # -----------------------------
+# MANUALLY DEFINED FILTER OPTIONS
+# -----------------------------
+
+HOST_OPTIONS = [
+    "Goat",
+    "Donkey",
+    "Rabbit",
+    "Mouse",
+    "Sheep",
+    "Chicken"
+]
+
+TARGET_SPECIES_OPTIONS = [
+    "Mouse",
+    "Rabbit",
+    "Rat",
+    "Human",
+    "Chicken",
+    "Bovine",
+    "Canine",
+    "Porcine",
+    "Multiple Species"
+]
+
+REACTIVITY_OPTIONS = [
+    "IgG",
+    "IgM",
+    "IgA",
+    "IgG (H+L)",
+    "Heavy Chain",
+    "Light Chain",
+    "Other"
+]
+
+# -----------------------------
 # LOAD CSV
 # -----------------------------
 
@@ -42,8 +77,6 @@ except FileNotFoundError:
 # -----------------------------
 # CLEAN COLUMN NAMES
 # -----------------------------
-
-# Remove extra spaces and non-breaking spaces from headers
 
 antibody_data.columns = [
     re.sub(r"\s+", " ", str(column)).strip()
@@ -78,53 +111,24 @@ st.subheader("Filter Antibodies")
 
 col1, col2, col3 = st.columns(3)
 
-filter_columns = [
-    ("Host (Species used to develop the antibody)", "Host"),
-    ("Target Species (Species to which antibody binds)", "Target Species"),
-    ("Antibody Reactivity Target", "Reactivity Target")
-]
-
-filter_values = {}
-
-for column_name, filter_label in filter_columns:
-
-    if column_name in antibody_data.columns:
-
-        options = (
-            antibody_data[column_name]
-            .dropna()
-            .astype(str)
-            .str.strip()
-        )
-
-        options = sorted(
-            [value for value in options.unique() if value],
-            key=str.casefold
-        )
-
-        filter_values[filter_label] = options
-
-    else:
-        filter_values[filter_label] = []
-
 with col1:
     selected_host = st.selectbox(
         "Host Species",
-        ["All"] + filter_values["Host"],
+        ["All"] + HOST_OPTIONS,
         key="secondary_host_filter"
     )
 
 with col2:
     selected_target = st.selectbox(
         "Target Species",
-        ["All"] + filter_values["Target Species"],
+        ["All"] + TARGET_SPECIES_OPTIONS,
         key="secondary_target_filter"
     )
 
 with col3:
     selected_reactivity = st.selectbox(
         "Antibody Reactivity Target",
-        ["All"] + filter_values["Reactivity Target"],
+        ["All"] + REACTIVITY_OPTIONS,
         key="secondary_reactivity_filter"
     )
 
@@ -134,28 +138,35 @@ with col3:
 
 filtered_data = antibody_data.copy()
 
-if selected_host != "All":
+host_column = "Host (Species used to develop the antibody)"
+target_column = "Target Species (Species to which antibody binds)"
+reactivity_column = "Antibody Reactivity Target"
+
+if selected_host != "All" and host_column in filtered_data.columns:
     filtered_data = filtered_data[
-        filtered_data["Host (Species used to develop the antibody)"]
+        filtered_data[host_column]
         .astype("string")
         .str.strip()
-        == selected_host
+        .str.casefold()
+        == selected_host.casefold()
     ]
 
-if selected_target != "All":
+if selected_target != "All" and target_column in filtered_data.columns:
     filtered_data = filtered_data[
-        filtered_data["Target Species (Species to which antibody binds)"]
+        filtered_data[target_column]
         .astype("string")
         .str.strip()
-        == selected_target
+        .str.casefold()
+        == selected_target.casefold()
     ]
 
-if selected_reactivity != "All":
+if selected_reactivity != "All" and reactivity_column in filtered_data.columns:
     filtered_data = filtered_data[
-        filtered_data["Antibody Reactivity Target"]
+        filtered_data[reactivity_column]
         .astype("string")
         .str.strip()
-        == selected_reactivity
+        .str.casefold()
+        == selected_reactivity.casefold()
     ]
 
 # -----------------------------
