@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 from pathlib import Path
@@ -18,10 +17,9 @@ st.write("Search and view the laboratory secondary antibody inventory.")
 
 HOST_OPTIONS = [
     "Goat",
-    "Donkey",
     "Rabbit",
     "Mouse",
-    "Sheep",
+    "Donkey",
     "Chicken"
 ]
 
@@ -34,17 +32,29 @@ TARGET_SPECIES_OPTIONS = [
     "Bovine",
     "Canine",
     "Porcine",
-    "Multiple Species"
+    "Swine"
 ]
 
 REACTIVITY_OPTIONS = [
     "IgG",
     "IgM",
     "IgA",
-    "IgG (H+L)",
-    "Heavy Chain",
-    "Light Chain",
-    "Other"
+    "IgY",
+    "NKX2.1",
+    "His",
+    "Interleukin-6",
+    "TTF-1",
+    "Cytokeratin",
+    "Kappa",
+    "Digoxenin",
+    "DYKDDDDK",
+    "Flag",
+    "AAV",
+    "GFP",
+    "Streptavidin",
+    "HRP",
+    "Mouse primary antibodies",
+    "Rabbit primary antibodies"
 ]
 
 # -----------------------------
