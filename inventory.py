@@ -99,12 +99,16 @@ restriction_enzymes_page = st.Page(
     icon="✂️"
 )
 
-# NEW: Read-only Plasmid Inventory
 plasmid_inventory_page = st.Page(
     "pages/plasmid_inventory.py",
     title="View Plasmid Inventory",
     icon="⭕"
 )
+
+secondary_antibodies_page = st.Page(
+    "pages/secondary_antibodies.py",
+    title="View Secondary Antibodies Inventory",
+    icon="🧪" 
 
 pg = st.navigation([
     home_page,
