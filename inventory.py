@@ -91,13 +91,13 @@ home_page = st.Page(
 
 freezer_20C_page = st.Page(
     "pages/freezer_20C.py",
-    title="-20°C Inventory",
+    title="View and Edit -20°C Inventory",
     icon="❄️"
 )
 
 freezer_80C_page = st.Page(
     "pages/freezer_80C.py",
-    title="-80°C Inventory",
+    title="View and Edit -80°C Inventory",
     icon="🧊"
 )
 
