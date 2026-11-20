@@ -1,3 +1,4 @@
+
 import streamlit as st
 
 st.set_page_config(
@@ -7,7 +8,10 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Responsive styling for phones and tablets.
+# -----------------------------
+# RESPONSIVE STYLING
+# -----------------------------
+
 st.markdown(
     """
     <style>
@@ -74,6 +78,10 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+# -----------------------------
+# DEFINE PAGES
+# -----------------------------
+
 home_page = st.Page(
     "pages/home.py",
     title="Home",
@@ -108,14 +116,24 @@ plasmid_inventory_page = st.Page(
 secondary_antibodies_page = st.Page(
     "pages/secondary_antibodies.py",
     title="View Secondary Antibodies Inventory",
-    icon="🧪" 
+    icon="🧪"
+)
+
+# -----------------------------
+# NAVIGATION
+# -----------------------------
 
 pg = st.navigation([
     home_page,
     freezer_20C_page,
     freezer_80C_page,
     restriction_enzymes_page,
-    plasmid_inventory_page
+    plasmid_inventory_page,
+    secondary_antibodies_page
 ])
+
+# -----------------------------
+# RUN APP
+# -----------------------------
 
 pg.run()
